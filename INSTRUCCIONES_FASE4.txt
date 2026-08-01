@@ -1,0 +1,29 @@
+ORÁCULO DIOSA FORTUNA — FASE 4
+COMPILACIÓN DEL INSTALADOR DE WINDOWS Y ANDROID
+
+ESTA ENTREGA ES CÓDIGO FUENTE.
+PARA OBTENER EL INSTALADOR .EXE, SIGUE ESTOS PASOS EN GITHUB:
+
+1. Crea una cuenta gratuita en github.com.
+2. Crea un repositorio nuevo y vacío.
+3. Sube TODO el contenido de esta carpeta, incluyendo la carpeta .github.
+4. En GitHub, entra a la pestaña Actions.
+5. Abre “Build Windows Installer”.
+6. Pulsa “Run workflow”.
+7. Espera a que termine.
+8. En la parte inferior del proceso, descarga:
+   Oraculo-Diosa-Fortuna-Setup
+9. Dentro estará:
+   Oraculo_Diosa_Fortuna_Setup.exe
+
+PARA ANDROID:
+1. En Actions, abre “Build Android”.
+2. Pulsa “Run workflow”.
+3. Descarga el APK para pruebas y el AAB para Google Play.
+
+IMPORTANTE:
+- El AAB debe firmarse con una llave definitiva antes de publicar.
+- Hay que definir un identificador de paquete único.
+- La política de privacidad incluida es una plantilla.
+- La aplicación debe probarse en equipos reales.
+- No se debe afirmar que garantiza premios.
