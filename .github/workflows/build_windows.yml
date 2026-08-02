@@ -19,6 +19,13 @@ jobs:
       - name: Generate Windows platform
         run: flutter create . --platforms=windows --project-name oraculo_diosa_fortuna --org com.primeinnovationthinking
 
+      - name: Remove generated widget test
+        shell: pwsh
+        run: |
+          if (Test-Path "test/widget_test.dart") {
+            Remove-Item "test/widget_test.dart" -Force
+          }
+
       - name: Dependencies
         run: flutter pub get
 
