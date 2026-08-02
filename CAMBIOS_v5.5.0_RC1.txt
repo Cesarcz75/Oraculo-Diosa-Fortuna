@@ -1,0 +1,23 @@
+ORÁCULO DIOSA FORTUNA PROFESSIONAL v5.5.0 RC1
+
+RELEASE CANDIDATE 1
+
+NUEVA CAPACIDAD: CENTRO DE AYUDA Y DIAGNÓSTICO
+
+- Nueva opción Ayuda en el menú principal.
+- Diagnóstico automático del estado de la sesión.
+- Verificación de Modelo PIT, histórico, ranking y versionado.
+- Confirmación de disponibilidad de ATHENA, Métricas, Auditor,
+  Simulador y Reportes.
+- Buscador de temas integrado.
+- Guía de primeros pasos.
+- Explicaciones del Modelo PIT, Score, Índice PIT, ATHENA,
+  Métricas, Auditor, Simulador y Reportes.
+- Nota de interpretación responsable.
+- Información visible de versión, modelo y motor.
+- Nuevas pruebas automáticas del diagnóstico.
+
+OBJETIVO DE RC1
+
+Consolidar la experiencia del usuario y preparar la aplicación para
+la revisión final de estabilidad antes de la versión 1.0.

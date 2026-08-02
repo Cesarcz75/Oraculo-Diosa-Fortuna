@@ -19,6 +19,7 @@ import '../reports/professional_report_screen.dart';
 import '../pit_metrics/pit_metrics_screen.dart';
 import '../pit_audit/pit_audit_screen.dart';
 import '../pit_simulator/pit_simulator_screen.dart';
+import '../help_center/help_center_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -284,7 +285,7 @@ class _HomeScreenState extends State<HomeScreen> {
           modelName: 'Modelo Oficial PIT',
           modelVersion: '1.0.0',
           engineName: 'Motor Fortuna',
-          engineVersion: '5.4.0',
+          engineVersion: '5.5.0',
           rules: <RuleConfig>[],
           disclaimer: '',
         );
@@ -335,6 +336,12 @@ class _HomeScreenState extends State<HomeScreen> {
         model: config,
         historyCount: _history.length,
         ranking: _ranking,
+      ),
+      HelpCenterScreen(
+        model: config,
+        drawHistory: _history,
+        ranking: _ranking,
+        savedModelVersions: _modelHistory.length,
       ),
       _buildAbout(config),
     ];
@@ -440,6 +447,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   icon: Icon(Icons.picture_as_pdf_outlined),
                   selectedIcon: Icon(Icons.picture_as_pdf),
                   label: Text('Reportes'),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.help_outline),
+                  selectedIcon: Icon(Icons.help),
+                  label: Text('Ayuda'),
                 ),
                 NavigationRailDestination(
                   icon: Icon(Icons.info_outline),
@@ -1140,7 +1152,40 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
+  Widget _metric({
+    required IconData icon,
+    required String title,
+    required String value,
+    required String caption,
+  }) {
+    return SizedBox(
+      width: 190,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Icon(icon, color: gold, size: 28),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(title, style: const TextStyle(color: Colors.white60)),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    color: gold,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(caption),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   void _showCombinationExplanation(RankedCombination item) {
     showDialog<void>(
