@@ -14,6 +14,7 @@ import '../athena/athena_screen.dart';
 import '../reports/professional_report_screen.dart';
 import '../pit_metrics/pit_metrics_screen.dart';
 import '../pit_audit/pit_audit_screen.dart';
+import '../pit_simulator/pit_simulator_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -279,7 +280,7 @@ class _HomeScreenState extends State<HomeScreen> {
           modelName: 'Modelo Oficial PIT',
           modelVersion: '1.0.0',
           engineName: 'Motor Fortuna',
-          engineVersion: '5.2.0',
+          engineVersion: '5.3.0',
           rules: <RuleConfig>[],
           disclaimer: '',
         );
@@ -296,6 +297,13 @@ class _HomeScreenState extends State<HomeScreen> {
         model: config,
         drawHistory: _history,
         ranking: _ranking,
+      ),
+      PitSimulatorScreen(
+        model: config,
+        modelHistory: _modelHistory,
+        drawHistory: _history,
+        ranking: _ranking,
+        onApply: _saveModelVersion,
       ),
       _buildStatistics(),
       _buildHistory(),
@@ -378,6 +386,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   icon: Icon(Icons.fact_check_outlined),
                   selectedIcon: Icon(Icons.fact_check),
                   label: Text('Auditor PIT'),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.tune_outlined),
+                  selectedIcon: Icon(Icons.tune),
+                  label: Text('Simulador PIT'),
                 ),
                 NavigationRailDestination(
                   icon: Icon(Icons.bar_chart_outlined),

@@ -1,0 +1,29 @@
+ORÁCULO DIOSA FORTUNA PROFESSIONAL v5.3.0
+
+NUEVA CAPACIDAD: SIMULADOR PIT
+
+- Nueva opción Simulador PIT en el menú.
+- Copia temporal del Modelo PIT activo.
+- Activación y desactivación experimental de reglas.
+- Modificación temporal de pesos.
+- Recalculo rápido sobre el ranking actual.
+- Comparación oficial contra experimental.
+- Comparación de salud del modelo.
+- Comparación de auditoría.
+- Comparación de Score e Índice PIT del líder.
+- Conteo de posiciones modificadas.
+- Recomendación antes de aplicar cambios.
+- Aplicación como nueva versión del Modelo PIT.
+- Descarte inmediato sin afectar el modelo oficial.
+- Nuevas pruebas automáticas del simulador.
+
+ALCANCE
+
+La simulación rápida reevalúa las combinaciones del ranking actual.
+Después de aplicar una versión, debe generarse un ranking exhaustivo nuevo
+desde el Dashboard.
+
+ACLARACIÓN
+
+La simulación analiza el comportamiento interno del Modelo PIT.
+No modifica las probabilidades matemáticas del sorteo ni garantiza premios.
