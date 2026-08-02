@@ -333,17 +333,14 @@ class ProfessionalReportService {
                         color: PdfColors.grey300,
                         borderRadius: pw.BorderRadius.circular(3),
                       ),
-                      child: pw.Align(
-                        alignment: pw.Alignment.centerLeft,
-                        child: pw.FractionallySizedBox(
-                          widthFactor: share,
-                          child: pw.Container(
-                            decoration: pw.BoxDecoration(
-                              color: const PdfColor.fromInt(0xFFE8B85A),
-                              borderRadius: pw.BorderRadius.circular(3),
-                            ),
-                          ),
-                        ),
+                    child: pw.Container(
+						width: 220 * share,
+						decoration: pw.BoxDecoration(
+							color: const PdfColor.fromInt(0xFFE8B85A),
+							borderRadius: pw.BorderRadius.circular(3),
+						),
+					),
+          
                       ),
                     ),
                   ],
