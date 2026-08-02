@@ -38,6 +38,26 @@ class LaboratoryExperiment {
   final int minimum;
   final int maximum;
   final DateTime createdAt;
+
+  LaboratoryExperiment copyWith({
+    String? id,
+    String? name,
+    String? description,
+    ExperimentRuleType? ruleType,
+    int? minimum,
+    int? maximum,
+    DateTime? createdAt,
+  }) {
+    return LaboratoryExperiment(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      ruleType: ruleType ?? this.ruleType,
+      minimum: minimum ?? this.minimum,
+      maximum: maximum ?? this.maximum,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
 }
 
 class ExperimentResult {
@@ -77,5 +97,25 @@ class ExperimentResult {
       return 'Estabilidad moderada';
     }
     return 'Comportamiento inestable';
+  }
+}
+
+class ManagedExperiment {
+  const ManagedExperiment({
+    required this.result,
+    this.archived = false,
+  });
+
+  final ExperimentResult result;
+  final bool archived;
+
+  ManagedExperiment copyWith({
+    ExperimentResult? result,
+    bool? archived,
+  }) {
+    return ManagedExperiment(
+      result: result ?? this.result,
+      archived: archived ?? this.archived,
+    );
   }
 }

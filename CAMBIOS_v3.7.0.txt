@@ -1,0 +1,21 @@
+ORÁCULO DIOSA FORTUNA PROFESSIONAL v3.7.0
+
+NUEVA CAPACIDAD: ADMINISTRADOR DE EXPERIMENTOS
+
+- Selección de hasta dos experimentos.
+- Comparador visual de estabilidad.
+- Duplicación de experimentos al formulario.
+- Archivo y restauración de experimentos.
+- Filtro para mostrar u ocultar archivados.
+- Métricas de experimentos activos, estables y archivados.
+- Nuevas pruebas automáticas para duplicación y archivo.
+
+ALCANCE ACTUAL
+
+Los experimentos se conservan durante la sesión abierta.
+La persistencia entre cierres de la aplicación se implementará en una versión posterior.
+
+ACLARACIÓN
+
+La comparación mide estabilidad temporal del histórico.
+No representa probabilidad de ganar.
