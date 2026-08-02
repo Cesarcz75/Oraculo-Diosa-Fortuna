@@ -5,6 +5,7 @@ class RankedCombination {
     required this.sum,
     required this.evens,
     required this.repeated,
+    required this.contributions,
   });
 
   final List<int> numbers;
@@ -12,6 +13,7 @@ class RankedCombination {
   final int sum;
   final int evens;
   final int repeated;
+  final Map<String, double> contributions;
 
   int get odds => 6 - evens;
   String get label => numbers.join(' - ');
@@ -23,6 +25,7 @@ class RankedCombination {
       'sum': sum,
       'evens': evens,
       'repeated': repeated,
+      'contributions': contributions,
     };
   }
 
@@ -32,14 +35,23 @@ class RankedCombination {
     final Object? rawSum = map['sum'];
     final Object? rawEvens = map['evens'];
     final Object? rawRepeated = map['repeated'];
+    final Object? rawContributions = map['contributions'];
 
     if (rawNumbers is! List ||
         rawScore is! num ||
         rawSum is! int ||
         rawEvens is! int ||
-        rawRepeated is! int) {
+        rawRepeated is! int ||
+        rawContributions is! Map) {
       throw const FormatException('Resultado de ranking inválido.');
     }
+
+    final Map<String, double> contributions = <String, double>{};
+    rawContributions.forEach((Object? key, Object? value) {
+      if (key is String && value is num) {
+        contributions[key] = value.toDouble();
+      }
+    });
 
     return RankedCombination(
       numbers: rawNumbers.cast<int>(),
@@ -47,6 +59,7 @@ class RankedCombination {
       sum: rawSum,
       evens: rawEvens,
       repeated: rawRepeated,
+      contributions: Map<String, double>.unmodifiable(contributions),
     );
   }
 }

@@ -96,7 +96,7 @@ class StatisticalEngine {
 
     final int lows = combo.where((int value) => value <= 19).length;
 
-    double score = 0;
+    final Map<String, double> contributions = <String, double>{};
     final RuleConfig sumRule = config.rule('sum');
     final RuleConfig parityRule = config.rule('parity');
     final RuleConfig repeatRule = config.rule('repeat');
@@ -106,13 +106,16 @@ class StatisticalEngine {
     final RuleConfig lowHighRule = config.rule('lowHigh');
 
     if (sumRule.enabled) {
-      score += sumRule.weight * log(_sumProbability[sum] + 1e-15);
+      contributions['Suma histórica'] =
+          sumRule.weight * log(_sumProbability[sum] + 1e-15);
     }
     if (parityRule.enabled) {
-      score += parityRule.weight * log(_parityProbability[evens] + 1e-15);
+      contributions['Paridad'] =
+          parityRule.weight * log(_parityProbability[evens] + 1e-15);
     }
     if (repeatRule.enabled) {
-      score += repeatRule.weight * log(_repeatProbability[repeated] + 1e-15);
+      contributions['Repetición'] =
+          repeatRule.weight * log(_repeatProbability[repeated] + 1e-15);
     }
 
     final double frequencyScore = combo.fold<double>(
@@ -121,7 +124,8 @@ class StatisticalEngine {
           value + log(_numberProbability[number - 1] + 1e-15),
     );
     if (frequencyRule.enabled) {
-      score += frequencyRule.weight * frequencyScore / 6;
+      contributions['Frecuencia individual'] =
+          frequencyRule.weight * frequencyScore / 6;
     }
 
     double pairScore = 0;
@@ -131,17 +135,24 @@ class StatisticalEngine {
       }
     }
     if (pairRule.enabled) {
-      score += pairRule.weight * pairScore / 15;
+      contributions['Pares históricos'] =
+          pairRule.weight * pairScore / 15;
     }
 
     if (consecutiveRule.enabled) {
-      score += consecutivePairs <= 1
+      contributions['Consecutivos'] = consecutivePairs <= 1
           ? consecutiveRule.weight
           : -(consecutivePairs * consecutiveRule.weight);
     }
     if (lowHighRule.enabled) {
-      score -= (lows - 3).abs() * lowHighRule.weight;
+      contributions['Bajos y altos'] =
+          -(lows - 3).abs() * lowHighRule.weight;
     }
+
+    final double score = contributions.values.fold<double>(
+      0,
+      (double total, double value) => total + value,
+    );
 
     return RankedCombination(
       numbers: List<int>.unmodifiable(combo),
@@ -149,6 +160,7 @@ class StatisticalEngine {
       sum: sum,
       evens: evens,
       repeated: repeated,
+      contributions: Map<String, double>.unmodifiable(contributions),
     );
   }
 

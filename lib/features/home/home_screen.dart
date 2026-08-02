@@ -225,7 +225,7 @@ class _HomeScreenState extends State<HomeScreen> {
         const ModelConfig(
           modelName: 'Modelo Oficial PIT',
           engineName: 'Motor Fortuna',
-          engineVersion: '3.3.0',
+          engineVersion: '3.4.0',
           rules: <RuleConfig>[],
           disclaimer: '',
         );
@@ -407,7 +407,10 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.all(20),
             child: _ranking.isEmpty
                 ? Text(config.disclaimer)
-                : _RankingTable(ranking: _ranking),
+                : _RankingTable(
+                    ranking: _ranking,
+                    onInspect: _showCombinationExplanation,
+                  ),
           ),
         ),
       ],
@@ -548,6 +551,134 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showCombinationExplanation(RankedCombination item) {
+    final List<MapEntry<String, double>> entries =
+        item.contributions.entries.toList()
+          ..sort(
+            (MapEntry<String, double> a, MapEntry<String, double> b) =>
+                b.value.abs().compareTo(a.value.abs()),
+          );
+
+    final double magnitude = entries.fold<double>(
+      0,
+      (double total, MapEntry<String, double> entry) =>
+          total + entry.value.abs(),
+    );
+
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Explicación del ranking'),
+          content: SizedBox(
+            width: 560,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    item.label,
+                    style: const TextStyle(
+                      color: gold,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Puntaje total: ${item.score.toStringAsFixed(3)}',
+                  ),
+                  Text(
+                    'Suma ${item.sum} · '
+                    '${item.evens} pares / ${item.odds} impares · '
+                    '${item.repeated} repetidos',
+                  ),
+                  const SizedBox(height: 18),
+                  const Text(
+                    'Contribución de las reglas',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 12),
+                  ...entries.map((MapEntry<String, double> entry) {
+                    final double share = magnitude == 0
+                        ? 0
+                        : entry.value.abs() / magnitude;
+                    final bool positive = entry.value >= 0;
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 14),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Row(
+                            children: <Widget>[
+                              Icon(
+                                positive
+                                    ? Icons.add_circle_outline
+                                    : Icons.remove_circle_outline,
+                                color: positive
+                                    ? Colors.greenAccent
+                                    : Colors.orangeAccent,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(child: Text(entry.key)),
+                              Text(
+                                entry.value.toStringAsFixed(3),
+                                style: TextStyle(
+                                  color: positive
+                                      ? Colors.greenAccent
+                                      : Colors.orangeAccent,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          LinearProgressIndicator(
+                            value: share,
+                            color: positive
+                                ? Colors.greenAccent
+                                : Colors.orangeAccent,
+                            backgroundColor: const Color(0xFF2A103A),
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            '${(share * 100).toStringAsFixed(1)}% '
+                            'de la magnitud total del puntaje',
+                            style: const TextStyle(
+                              color: Colors.white60,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Esta explicación describe cómo el modelo construyó '
+                    'el puntaje. No representa una probabilidad de ganar.',
+                    style: TextStyle(
+                      color: Colors.white60,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cerrar'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -765,9 +896,13 @@ class _Brand extends StatelessWidget {
 }
 
 class _RankingTable extends StatelessWidget {
-  const _RankingTable({required this.ranking});
+  const _RankingTable({
+    required this.ranking,
+    required this.onInspect,
+  });
 
   final List<RankedCombination> ranking;
+  final ValueChanged<RankedCombination> onInspect;
 
   @override
   Widget build(BuildContext context) {
@@ -781,6 +916,7 @@ class _RankingTable extends StatelessWidget {
           DataColumn(label: Text('Paridad')),
           DataColumn(label: Text('Repite')),
           DataColumn(label: Text('Puntaje')),
+          DataColumn(label: Text('Explicación')),
         ],
         rows: List<DataRow>.generate(
           ranking.length,
@@ -802,6 +938,13 @@ class _RankingTable extends StatelessWidget {
                 DataCell(Text('${item.evens}P / ${item.odds}I')),
                 DataCell(Text('${item.repeated}')),
                 DataCell(Text(item.score.toStringAsFixed(3))),
+                DataCell(
+                  IconButton(
+                    tooltip: 'Ver contribución de reglas',
+                    onPressed: () => onInspect(item),
+                    icon: const Icon(Icons.analytics_outlined),
+                  ),
+                ),
               ],
             );
           },

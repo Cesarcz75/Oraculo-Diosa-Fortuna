@@ -38,5 +38,13 @@ void main() {
 
     expect(result.numbers.length, 6);
     expect(result.sum, 103);
+    expect(result.contributions, isNotEmpty);
+    expect(
+      result.contributions.values.fold<double>(
+        0,
+        (double total, double value) => total + value,
+      ),
+      closeTo(result.score, 0.000001),
+    );
   });
 }
