@@ -1,0 +1,18 @@
+ORÁCULO DIOSA FORTUNA PROFESSIONAL v4.2.0
+
+NUEVA CAPACIDAD: COMPARADOR DE MODELOS PIT
+
+- Nueva opción Comparador en el menú principal.
+- Selección de dos versiones guardadas del Modelo PIT.
+- Detección de reglas agregadas, eliminadas, activadas y desactivadas.
+- Comparación de pesos y diferencia exacta por regla.
+- Indicadores de reglas activas, peso total y evidencia promedio.
+- Índice PIT estructural para comparar versiones.
+- Filtro para mostrar únicamente las reglas modificadas.
+- Nuevas pruebas automáticas del motor de comparación.
+
+ACLARACIÓN
+
+El Índice PIT es una métrica interna basada en cobertura de reglas,
+evidencia registrada y equilibrio de pesos. No representa probabilidad
+de ganar ni capacidad predictiva del sorteo.

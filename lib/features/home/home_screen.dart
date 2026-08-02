@@ -9,6 +9,7 @@ import '../laboratory/laboratory_screen.dart';
 import '../research_center/research_center_screen.dart';
 import '../backtesting/backtesting_screen.dart';
 import '../model_settings/model_settings_screen.dart';
+import '../model_comparison/model_comparison_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -274,7 +275,7 @@ class _HomeScreenState extends State<HomeScreen> {
           modelName: 'Modelo Oficial PIT',
           modelVersion: '1.0.0',
           engineName: 'Motor Fortuna',
-          engineVersion: '4.0.0',
+          engineVersion: '4.2.0',
           rules: <RuleConfig>[],
           disclaimer: '',
         );
@@ -292,6 +293,10 @@ class _HomeScreenState extends State<HomeScreen> {
         onSave: _saveModelVersion,
         onRestore: _restoreModelVersion,
         onReset: _resetModelConfiguration,
+      ),
+      ModelComparisonScreen(
+        activeModel: config,
+        history: _modelHistory,
       ),
       _buildAbout(config),
     ];
@@ -367,6 +372,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   icon: Icon(Icons.tune_outlined),
                   selectedIcon: Icon(Icons.tune),
                   label: Text('Configuración'),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.compare_arrows_outlined),
+                  selectedIcon: Icon(Icons.compare_arrows),
+                  label: Text('Comparador'),
                 ),
                 NavigationRailDestination(
                   icon: Icon(Icons.info_outline),
