@@ -1,5 +1,6 @@
 import 'dart:isolate';
 import '../models/ranked_combination.dart';
+import '../models/model_config.dart';
 import 'statistical_engine.dart';
 
 class RankingRequest {
@@ -8,17 +9,19 @@ class RankingRequest {
     required this.latest,
     required this.topN,
     required this.replyPort,
+    required this.config,
   });
 
   final List<List<int>> history;
   final List<int> latest;
   final int topN;
   final SendPort replyPort;
+  final ModelConfig config;
 }
 
 void rankingWorker(RankingRequest request) {
   try {
-    final StatisticalEngine engine = StatisticalEngine(request.history);
+    final StatisticalEngine engine = StatisticalEngine(request.history, request.config);
     final List<RankedCombination> ranking = engine.rankTop(
       latest: request.latest,
       topN: request.topN,

@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oraculo_diosa_fortuna/core/services/statistical_engine.dart';
+import 'package:oraculo_diosa_fortuna/core/models/model_config.dart';
 
 void main() {
   test('el motor evalúa una combinación válida', () {
@@ -15,7 +16,21 @@ void main() {
       ]..sort(),
     );
 
-    final StatisticalEngine engine = StatisticalEngine(history);
+    final ModelConfig config = ModelConfig.fromMap(<String, dynamic>{
+      'modelName': 'Prueba',
+      'engineName': 'Motor Fortuna',
+      'engineVersion': '3.2.0',
+      'rules': <String, dynamic>{
+        'sum': <String, dynamic>{'enabled': true, 'weight': 2.0},
+        'parity': <String, dynamic>{'enabled': true, 'weight': 0.8},
+        'repeat': <String, dynamic>{'enabled': true, 'weight': 1.2},
+        'numberFrequency': <String, dynamic>{'enabled': true, 'weight': 0.35},
+        'pairLift': <String, dynamic>{'enabled': true, 'weight': 0.45},
+        'consecutive': <String, dynamic>{'enabled': true, 'weight': 0.25},
+        'lowHigh': <String, dynamic>{'enabled': true, 'weight': 0.08},
+      },
+    });
+    final StatisticalEngine engine = StatisticalEngine(history, config);
     final result = engine.evaluate(
       <int>[4, 11, 15, 23, 24, 26],
       history.last,

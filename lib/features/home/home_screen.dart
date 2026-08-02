@@ -1,6 +1,8 @@
 import 'dart:isolate';
 import 'package:flutter/material.dart';
 import '../../core/models/ranked_combination.dart';
+import '../../core/models/model_config.dart';
+import '../../core/services/model_config_repository.dart';
 import '../../core/services/history_repository.dart';
 import '../../core/services/ranking_worker.dart';
 import '../laboratory/laboratory_screen.dart';
@@ -14,6 +16,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final HistoryRepository _repository = const HistoryRepository();
+  final ModelConfigRepository _configRepository =
+      const ModelConfigRepository();
   final List<TextEditingController> _controllers =
       List<TextEditingController>.generate(
     6,
@@ -22,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   List<List<int>> _history = <List<int>>[];
   List<RankedCombination> _ranking = <RankedCombination>[];
+  ModelConfig? _config;
   bool _loading = true;
   bool _running = false;
   double _progress = 0;
@@ -48,7 +53,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadHistory() async {
     try {
-      final List<List<int>> history = await _repository.load();
+      final List<Object> loaded = await Future.wait<Object>(<Future<Object>>[
+        _repository.load(),
+        _configRepository.load(),
+      ]);
+      final List<List<int>> history = loaded[0] as List<List<int>>;
+      final ModelConfig config = loaded[1] as ModelConfig;
       final List<int> last = history.last;
 
       for (int index = 0; index < 6; index++) {
@@ -61,6 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       setState(() {
         _history = history;
+        _config = config;
         _loading = false;
         _status = 'Histórico cargado: ${history.length} sorteos.';
       });
@@ -97,6 +108,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _generate() async {
+    final ModelConfig? config = _config;
+    if (config == null) {
+      _showMessage('La configuración del modelo aún no está disponible.');
+      return;
+    }
+
     try {
       final List<int> latest = _readLatest();
 
@@ -175,6 +192,7 @@ class _HomeScreenState extends State<HomeScreen> {
           latest: latest,
           topN: 10,
           replyPort: port.sendPort,
+          config: config,
         ),
       );
     } on FormatException catch (error) {
@@ -269,6 +287,57 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(height: 6),
         const Text('Plataforma de investigación estadística · Melate Retro'),
         const SizedBox(height: 20),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              children: <Widget>[
+                Image.asset(
+                  'assets/images/oraculo_logo.png',
+                  height: 92,
+                  width: 112,
+                  fit: BoxFit.contain,
+                ),
+                const SizedBox(width: 18),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      const Text(
+                        'MOTOR FORTUNA',
+                        style: TextStyle(
+                          color: Color(0xFFE8B85A),
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.3,
+                        ),
+                      ),
+                      const SizedBox(height: 7),
+                      const Text(
+                        'Estado: OPERANDO',
+                        style: TextStyle(
+                          fontSize: 19,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${_config?.modelName ?? 'Modelo Oficial PIT'} · '
+                        'v${_config?.engineVersion ?? '3.2.0'}',
+                        style: const TextStyle(color: Colors.white60),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(
+                  Icons.check_circle,
+                  color: Colors.greenAccent,
+                  size: 34,
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 18),
         Card(
           child: Padding(
             padding: const EdgeInsets.all(20),
@@ -413,20 +482,29 @@ class _Brand extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       children: <Widget>[
-        CircleAvatar(
-          radius: 30,
-          backgroundColor: Color(0xFF8F4DFF),
-          child: Icon(Icons.auto_awesome, size: 30),
+        Image.asset(
+          'assets/images/oraculo_logo.png',
+          height: 78,
+          width: 94,
+          fit: BoxFit.contain,
         ),
-        SizedBox(height: 8),
-        Text(
+        const SizedBox(height: 4),
+        const Text(
           'Diosa Fortuna',
+          textAlign: TextAlign.center,
           style: TextStyle(
             color: Color(0xFFE8B85A),
             fontWeight: FontWeight.bold,
           ),
+        ),
+        const SizedBox(height: 10),
+        Image.asset(
+          'assets/images/pit_powered_by.png',
+          height: 34,
+          width: 116,
+          fit: BoxFit.contain,
         ),
       ],
     );

@@ -1,8 +1,9 @@
 import 'dart:math';
 import '../models/ranked_combination.dart';
+import '../models/model_config.dart';
 
 class StatisticalEngine {
-  StatisticalEngine(this.history) {
+  StatisticalEngine(this.history, this.config) {
     if (history.length < 20) {
       throw ArgumentError('Se requieren al menos 20 sorteos.');
     }
@@ -10,6 +11,7 @@ class StatisticalEngine {
   }
 
   final List<List<int>> history;
+  final ModelConfig config;
 
   late final List<double> _numberProbability;
   late final List<double> _sumProbability;
@@ -95,16 +97,32 @@ class StatisticalEngine {
     final int lows = combo.where((int value) => value <= 19).length;
 
     double score = 0;
-    score += 2.0 * log(_sumProbability[sum] + 1e-15);
-    score += 0.8 * log(_parityProbability[evens] + 1e-15);
-    score += 1.2 * log(_repeatProbability[repeated] + 1e-15);
+    final RuleConfig sumRule = config.rule('sum');
+    final RuleConfig parityRule = config.rule('parity');
+    final RuleConfig repeatRule = config.rule('repeat');
+    final RuleConfig frequencyRule = config.rule('numberFrequency');
+    final RuleConfig pairRule = config.rule('pairLift');
+    final RuleConfig consecutiveRule = config.rule('consecutive');
+    final RuleConfig lowHighRule = config.rule('lowHigh');
+
+    if (sumRule.enabled) {
+      score += sumRule.weight * log(_sumProbability[sum] + 1e-15);
+    }
+    if (parityRule.enabled) {
+      score += parityRule.weight * log(_parityProbability[evens] + 1e-15);
+    }
+    if (repeatRule.enabled) {
+      score += repeatRule.weight * log(_repeatProbability[repeated] + 1e-15);
+    }
 
     final double frequencyScore = combo.fold<double>(
       0,
       (double value, int number) =>
           value + log(_numberProbability[number - 1] + 1e-15),
     );
-    score += 0.35 * frequencyScore / 6;
+    if (frequencyRule.enabled) {
+      score += frequencyRule.weight * frequencyScore / 6;
+    }
 
     double pairScore = 0;
     for (int a = 0; a < combo.length; a++) {
@@ -112,10 +130,18 @@ class StatisticalEngine {
         pairScore += _pairLift[combo[a]][combo[b]];
       }
     }
-    score += 0.45 * pairScore / 15;
+    if (pairRule.enabled) {
+      score += pairRule.weight * pairScore / 15;
+    }
 
-    score += consecutivePairs <= 1 ? 0.25 : -(consecutivePairs * 0.25);
-    score -= (lows - 3).abs() * 0.08;
+    if (consecutiveRule.enabled) {
+      score += consecutivePairs <= 1
+          ? consecutiveRule.weight
+          : -(consecutivePairs * consecutiveRule.weight);
+    }
+    if (lowHighRule.enabled) {
+      score -= (lows - 3).abs() * lowHighRule.weight;
+    }
 
     return RankedCombination(
       numbers: List<int>.unmodifiable(combo),

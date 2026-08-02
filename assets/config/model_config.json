@@ -1,43 +1,43 @@
 {
   "modelName": "Modelo Oficial PIT",
   "engineName": "Motor Fortuna",
-  "engineVersion": "3.1.0",
+  "engineVersion": "3.2.0",
   "rules": {
     "sum": {
+      "label": "Suma histórica",
       "enabled": true,
-      "weight": 2.0,
-      "label": "Suma histórica"
+      "weight": 2.0
     },
     "parity": {
+      "label": "Paridad",
       "enabled": true,
-      "weight": 0.8,
-      "label": "Paridad"
+      "weight": 0.8
     },
     "repeat": {
+      "label": "Repetición",
       "enabled": true,
-      "weight": 1.2,
-      "label": "Repetición"
+      "weight": 1.2
     },
-    "frequency": {
+    "numberFrequency": {
+      "label": "Frecuencia individual",
       "enabled": true,
-      "weight": 0.35,
-      "label": "Frecuencia individual"
+      "weight": 0.35
     },
-    "pairs": {
+    "pairLift": {
+      "label": "Pares históricos",
       "enabled": true,
-      "weight": 0.45,
-      "label": "Pares históricos"
+      "weight": 0.45
     },
     "consecutive": {
+      "label": "Consecutivos",
       "enabled": true,
-      "weight": 0.25,
-      "label": "Consecutivos"
+      "weight": 0.25
     },
     "lowHigh": {
+      "label": "Bajos y altos",
       "enabled": true,
-      "weight": 0.08,
-      "label": "Bajos y altos"
+      "weight": 0.08
     }
   },
-  "disclaimer": "El índice de ajuste no representa una probabilidad de ganar. La aplicación no garantiza premios."
+  "disclaimer": "El índice de ajuste no representa una probabilidad de ganar."
 }
