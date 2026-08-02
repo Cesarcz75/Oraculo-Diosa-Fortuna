@@ -35,6 +35,7 @@ void main() {
   test('una regla desconocida se devuelve inactiva', () {
     const ModelConfig config = ModelConfig(
       modelName: 'Modelo',
+      modelVersion: '1.0.0',
       engineName: 'Motor',
       engineVersion: '3.5.0',
       rules: <RuleConfig>[],

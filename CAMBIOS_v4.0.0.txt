@@ -1,0 +1,19 @@
+ORÁCULO DIOSA FORTUNA PROFESSIONAL v4.0.0
+
+NUEVA CAPACIDAD: MODELO PIT EDITABLE Y VERSIONADO
+
+- Pesos editables desde la aplicación.
+- Activación y desactivación visual de reglas.
+- Guardado del modelo activo en el dispositivo.
+- Versión del software separada de la versión del Modelo PIT.
+- Nota obligatoria para documentar cada cambio.
+- Historial local de hasta 25 versiones.
+- Restauración de versiones anteriores.
+- Restablecimiento de la configuración de fábrica.
+- El siguiente ranking usa inmediatamente el modelo seleccionado.
+- Nuevas pruebas automáticas del repositorio de versiones.
+
+IMPORTANTE
+
+Cambiar pesos modifica el criterio interno de ranking.
+No cambia las probabilidades matemáticas del sorteo ni garantiza premios.

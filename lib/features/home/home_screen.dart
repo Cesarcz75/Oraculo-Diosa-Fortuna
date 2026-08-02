@@ -8,6 +8,7 @@ import '../../core/services/ranking_worker.dart';
 import '../laboratory/laboratory_screen.dart';
 import '../research_center/research_center_screen.dart';
 import '../backtesting/backtesting_screen.dart';
+import '../model_settings/model_settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -33,6 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<List<int>> _history = <List<int>>[];
   List<RankedCombination> _ranking = <RankedCombination>[];
   ModelConfig? _config;
+  List<ModelConfig> _modelHistory = <ModelConfig>[];
   bool _loading = true;
   bool _running = false;
   double _progress = 0;
@@ -63,9 +65,12 @@ class _HomeScreenState extends State<HomeScreen> {
       final List<Object> loaded = await Future.wait<Object>(<Future<Object>>[
         _repository.load(),
         _configRepository.load(),
+        _configRepository.loadHistory(),
       ]);
       final List<List<int>> history = loaded[0] as List<List<int>>;
       final ModelConfig config = loaded[1] as ModelConfig;
+      final List<ModelConfig> modelHistory =
+          loaded[2] as List<ModelConfig>;
       final List<int> last = history.last;
 
       for (int index = 0; index < 6; index++) {
@@ -79,6 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _history = history;
         _config = config;
+        _modelHistory = modelHistory;
         _loading = false;
         _status = 'Motor Fortuna listo · ${history.length} sorteos cargados.';
       });
@@ -215,6 +221,46 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Future<void> _saveModelVersion(ModelConfig config) async {
+    await _configRepository.saveVersion(config);
+    final List<ModelConfig> history =
+        await _configRepository.loadHistory();
+    if (!mounted) return;
+    setState(() {
+      _config = config;
+      _modelHistory = history;
+      _ranking = <RankedCombination>[];
+      _status =
+          'Modelo PIT v${config.modelVersion} activado. Genera un nuevo ranking.';
+    });
+  }
+
+  Future<void> _restoreModelVersion(ModelConfig config) async {
+    await _configRepository.restore(config);
+    final ModelConfig active = await _configRepository.load();
+    final List<ModelConfig> history =
+        await _configRepository.loadHistory();
+    if (!mounted) return;
+    setState(() {
+      _config = active;
+      _modelHistory = history;
+      _ranking = <RankedCombination>[];
+      _status = 'Modelo PIT v${active.modelVersion} restaurado.';
+    });
+  }
+
+  Future<void> _resetModelConfiguration() async {
+    await _configRepository.reset();
+    final ModelConfig factory =
+        await _configRepository.loadFactoryDefault();
+    if (!mounted) return;
+    setState(() {
+      _config = factory;
+      _ranking = <RankedCombination>[];
+      _status = 'Configuración de fábrica activada.';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_loading) {
@@ -226,8 +272,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final ModelConfig config = _config ??
         const ModelConfig(
           modelName: 'Modelo Oficial PIT',
+          modelVersion: '1.0.0',
           engineName: 'Motor Fortuna',
-          engineVersion: '3.9.0',
+          engineVersion: '4.0.0',
           rules: <RuleConfig>[],
           disclaimer: '',
         );
@@ -239,7 +286,13 @@ class _HomeScreenState extends State<HomeScreen> {
       LaboratoryScreen(history: _history),
       BacktestingScreen(history: _history),
       ResearchCenterScreen(config: config),
-      _buildSettings(config),
+      ModelSettingsScreen(
+        config: config,
+        history: _modelHistory,
+        onSave: _saveModelVersion,
+        onRestore: _restoreModelVersion,
+        onReset: _resetModelConfiguration,
+      ),
       _buildAbout(config),
     ];
 
@@ -352,7 +405,8 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         const SizedBox(height: 6),
         Text(
-          '${config.engineName} v${config.engineVersion} · ${config.modelName}',
+          '${config.engineName} v${config.engineVersion} · '
+          '${config.modelName} v${config.modelVersion}',
         ),
         const SizedBox(height: 20),
         LayoutBuilder(
@@ -408,7 +462,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   icon: Icons.memory_outlined,
                   title: 'Modelo',
                   value: config.engineVersion,
-                  caption: config.modelName,
+                  caption: '${config.modelName} v${config.modelVersion}',
                 ),
               ],
             ),
@@ -779,49 +833,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSettings(ModelConfig config) {
-    return ListView(
-      padding: const EdgeInsets.all(24),
-      children: <Widget>[
-        Text(
-          'Configuración del modelo',
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
-        const SizedBox(height: 8),
-        Text(config.disclaimer),
-        const SizedBox(height: 18),
-        ...config.rules.map(
-          (RuleConfig rule) => Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: Card(
-              color: panel,
-              child: ListTile(
-                leading: Icon(
-                  rule.enabled ? Icons.check_circle : Icons.cancel_outlined,
-                  color: rule.enabled ? Colors.greenAccent : Colors.white38,
-                ),
-                title: Text(rule.label),
-                subtitle: Text('Clave técnica: ${rule.key}'),
-                trailing: Text(
-                  'Peso ${rule.weight.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    color: gold,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        const Text(
-          'Los valores se leen desde assets/config/model_config.json. '
-          'El editor visual de pesos se incorporará en la siguiente versión.',
         ),
       ],
     );

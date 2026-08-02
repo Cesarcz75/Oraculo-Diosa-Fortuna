@@ -1,7 +1,7 @@
 {
   "modelName": "Modelo Oficial PIT",
   "engineName": "Motor Fortuna",
-  "engineVersion": "3.5.0",
+  "engineVersion": "4.0.0",
   "rules": {
     "sum": {
       "id": "PIT-001",
@@ -88,5 +88,7 @@
       "weight": 0.08
     }
   },
-  "disclaimer": "El índice de ajuste no representa una probabilidad de ganar."
+  "disclaimer": "El índice de ajuste no representa una probabilidad de ganar.",
+  "modelVersion": "1.0.0",
+  "changeNote": "Modelo oficial inicial editable desde la aplicación."
 }
