@@ -1,0 +1,23 @@
+ORÁCULO DIOSA FORTUNA PROFESSIONAL v1.0.0
+
+VERSIÓN ESTABLE Y PUBLICABLE
+
+- Versión de aplicación 1.0.0+100.
+- Pantallas Acerca de y Ayuda actualizadas.
+- Política de privacidad actualizada y sin campos pendientes.
+- Ficha de Google Play actualizada.
+- Guía de Seguridad de datos.
+- Guía de firma Android.
+- Checklist de publicación multiplataforma.
+- Manual de usuario.
+- Notas de versión.
+- Workflow unificado Publish Professional Release.
+- AAB firmado mediante secretos de GitHub.
+- APK para pruebas.
+- ZIP portable para Windows.
+- ZIP de aplicación Web.
+- Creación automática de GitHub Release.
+- Política de privacidad desplegada junto con la aplicación Web.
+
+PACKAGE ID DEFINITIVO
+com.primeinnovationthinking.oraculodiosafortuna

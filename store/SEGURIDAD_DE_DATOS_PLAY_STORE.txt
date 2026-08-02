@@ -1,0 +1,27 @@
+GUÍA PARA EL FORMULARIO “SEGURIDAD DE DATOS” DE GOOGLE PLAY
+
+Versión 1.0
+
+1. ¿La aplicación recopila o comparte datos obligatorios declarables?
+   No, de acuerdo con la arquitectura actual.
+
+2. Datos personales
+   No se solicitan nombre, correo, teléfono, dirección, identificadores personales ni ubicación.
+
+3. Información financiera
+   No se recopila ni procesa información financiera, pagos o apuestas.
+
+4. Actividad de la aplicación
+   El histórico, configuraciones, versiones y rankings se procesan y almacenan localmente para la funcionalidad de la aplicación. No se transmiten al desarrollador.
+
+5. Publicidad y analítica
+   No incorpora SDK de publicidad ni analítica de terceros.
+
+6. Cuenta y eliminación
+   No existe cuenta de usuario. Los datos locales pueden eliminarse borrando los datos de la aplicación o desinstalándola.
+
+7. Seguridad en tránsito
+   No aplica para los datos funcionales locales porque no se transmiten a un servidor del desarrollador.
+
+IMPORTANTE
+Revisar de nuevo este formulario si en una versión futura se añaden cuentas, nube, analítica, publicidad, soporte embebido o servicios externos.

@@ -1,18 +1,28 @@
-# Oráculo Diosa Fortuna Professional v3.1.0
+# Oráculo Diosa Fortuna Professional
 
-Primer desarrollo de la etapa comercial.
+Plataforma Flutter de investigación estadística para Melate Retro, desarrollada por PRIME Innovation Thinking.
 
-## Incluye
+## Versión estable
 
-- Identidad visual oficial.
-- Sello discreto de PRIME Innovation Thinking.
-- Panel Motor Fortuna.
-- Configuración externa de reglas.
-- Build Windows.
-- Deploy Web.
-- APK y AAB Android.
-- Política de privacidad y ficha de Play Store.
+**1.0.0+100**
+
+## Calidad
+
+```bash
+flutter pub get
+flutter analyze
+flutter test
+```
+
+## Builds
+
+- `Build Windows Download`: ZIP portable para Windows.
+- `Build and Deploy Web`: despliegue en GitHub Pages.
+- `Build Android Release`: APK y AAB de prueba.
+- `Publish Professional Release`: AAB firmado, APK, Web, Windows y GitHub Release.
+
+La firma para Google Play se configura mediante secretos de GitHub. Consulte `store/GUIA_FIRMA_ANDROID.txt`.
 
 ## Aviso
 
-La aplicación no garantiza premios ni modifica las probabilidades de un sorteo justo.
+El software no garantiza premios y sus indicadores no representan probabilidades de ganar.

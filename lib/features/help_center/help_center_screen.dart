@@ -233,7 +233,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Versión del software: 5.5.0 RC1\n'
+                    'Versión del software: 1.0.0\n'
                     'Modelo activo: ${widget.model.modelVersion}\n'
                     'Motor: ${widget.model.engineName} '
                     'v${widget.model.engineVersion}\n\n'

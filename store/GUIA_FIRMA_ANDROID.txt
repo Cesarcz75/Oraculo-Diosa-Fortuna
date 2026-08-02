@@ -1,0 +1,33 @@
+FIRMA ANDROID PARA GOOGLE PLAY
+
+El workflow “Publish Professional Release” requiere cuatro secretos en GitHub:
+
+ANDROID_KEYSTORE_BASE64
+ANDROID_KEYSTORE_PASSWORD
+ANDROID_KEY_ALIAS
+ANDROID_KEY_PASSWORD
+
+1. Crear la llave de carga una sola vez:
+
+keytool -genkeypair -v -keystore upload-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+
+2. Convertir el archivo a Base64 en PowerShell:
+
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("upload-keystore.jks")) | Set-Content keystore_base64.txt
+
+3. En GitHub:
+Settings > Secrets and variables > Actions > New repository secret
+
+4. Crear los cuatro secretos indicados arriba.
+
+5. Guardar upload-keystore.jks, alias y contraseñas en un lugar seguro. No subir la llave al repositorio.
+
+6. Ejecutar:
+Actions > Publish Professional Release > Run workflow
+
+El resultado incluye:
+• app-release.aab firmado para Google Play.
+• app-release.apk para pruebas.
+• ZIP portable para Windows.
+• ZIP de la aplicación web.
+• GitHub Release con todos los archivos.

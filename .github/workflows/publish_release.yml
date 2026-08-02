@@ -1,0 +1,152 @@
+name: Publish Professional Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Release tag, for example v1.0.0"
+        required: true
+        default: "v1.0.0"
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+
+  android:
+    needs: quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Generate Android platform
+        run: flutter create . --platforms=android --project-name oraculo_diosa_fortuna --org com.primeinnovationthinking
+      - name: Validate signing secrets
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          test -n "$KEYSTORE_BASE64" || (echo "Missing ANDROID_KEYSTORE_BASE64" && exit 1)
+          test -n "$STORE_PASSWORD" || (echo "Missing ANDROID_KEYSTORE_PASSWORD" && exit 1)
+          test -n "$KEY_ALIAS" || (echo "Missing ANDROID_KEY_ALIAS" && exit 1)
+          test -n "$KEY_PASSWORD" || (echo "Missing ANDROID_KEY_PASSWORD" && exit 1)
+      - name: Configure Play signing
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 --decode > android/app/upload-keystore.jks
+          cat > android/key.properties <<EOF
+          storePassword=$STORE_PASSWORD
+          keyPassword=$KEY_PASSWORD
+          keyAlias=$KEY_ALIAS
+          storeFile=upload-keystore.jks
+          EOF
+          python tool/configure_android_signing.py
+      - run: flutter pub get
+      - run: flutter build appbundle --release
+      - run: flutter build apk --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Oraculo-Android-PlayStore
+          path: |
+            build/app/outputs/bundle/release/app-release.aab
+            build/app/outputs/flutter-apk/app-release.apk
+
+  web:
+    needs: quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Generate Web platform
+        run: flutter create . --platforms=web --project-name oraculo_diosa_fortuna --org com.primeinnovationthinking
+      - run: flutter pub get
+      - name: Build distributable Web app
+        run: |
+          flutter build web --release --base-href "/Oraculo-Diosa-Fortuna/"
+          cp store/politica_privacidad.html build/web/privacy.html
+          cd build && zip -r ../Oraculo_Diosa_Fortuna_Web.zip web
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Oraculo-Web
+          path: Oraculo_Diosa_Fortuna_Web.zip
+
+  windows:
+    needs: quality
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Generate Windows platform
+        run: flutter create . --platforms=windows --project-name oraculo_diosa_fortuna --org com.primeinnovationthinking
+      - shell: pwsh
+        run: if (Test-Path "test/widget_test.dart") { Remove-Item "test/widget_test.dart" -Force }
+      - run: flutter pub get
+      - run: flutter build windows --release
+      - name: Package portable Windows download
+        shell: pwsh
+        run: Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath Oraculo_Diosa_Fortuna_Windows.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Oraculo-Windows
+          path: Oraculo_Diosa_Fortuna_Windows.zip
+
+  release:
+    needs: [android, web, windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+      - name: Resolve release tag
+        id: tag
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            echo "value=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=${{ inputs.release_tag }}" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.value }}
+          name: Oráculo Diosa Fortuna Professional ${{ steps.tag.outputs.value }}
+          generate_release_notes: true
+          files: |
+            artifacts/**/*.aab
+            artifacts/**/*.apk
+            artifacts/**/*Windows.zip
+            artifacts/**/*Web.zip

@@ -42,7 +42,9 @@ jobs:
         run: flutter test
 
       - name: Build Web
-        run: flutter build web --release --base-href "/Oraculo-Diosa-Fortuna/"
+        run: |
+          flutter build web --release --base-href "/Oraculo-Diosa-Fortuna/"
+          cp store/politica_privacidad.html build/web/privacy.html
 
       - name: Configure Pages
         uses: actions/configure-pages@v5

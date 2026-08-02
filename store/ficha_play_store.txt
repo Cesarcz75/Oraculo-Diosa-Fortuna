@@ -1,20 +1,36 @@
-ORÁCULO DIOSA FORTUNA
+ORÁCULO DIOSA FORTUNA PROFESSIONAL
 
-Descripción corta:
-Investigación estadística y ranking de combinaciones de Melate Retro.
+Nombre de paquete:
+com.primeinnovationthinking.oraculodiosafortuna
 
-Descripción:
-Oráculo Diosa Fortuna Professional analiza el histórico de Melate Retro y evalúa combinaciones mediante un modelo estadístico local.
+Descripción corta (máximo 80 caracteres):
+Laboratorio estadístico y Modelo PIT para analizar Melate Retro.
 
-Funciones:
-• Evaluación exhaustiva de combinaciones.
-• Ranking Top 10.
-• Estadísticas históricas.
-• Histórico integrado.
-• Procesamiento local.
+Descripción completa:
+Oráculo Diosa Fortuna Professional es una plataforma educativa y de investigación estadística para Melate Retro. Procesa el histórico y evalúa combinaciones mediante el Motor Fortuna y un Modelo PIT configurable.
 
-Aviso:
-La aplicación no garantiza premios. El puntaje no representa una probabilidad de ganar.
+Funciones principales:
+• Ranking y explicación detallada del Score.
+• Modelo PIT editable y versionado.
+• Laboratorio y backtesting.
+• Comparador de versiones.
+• ATHENA, analista local del modelo y del histórico.
+• Métricas de salud metodológica.
+• Auditor PIT con alertas y recomendaciones.
+• Simulador temporal de pesos y reglas.
+• Dashboard ejecutivo.
+• Reportes profesionales en PDF.
+• Centro de ayuda y diagnóstico integrado.
+• Procesamiento local, sin cuenta y sin publicidad.
+
+Uso responsable:
+La aplicación no vende boletos, no procesa apuestas y no garantiza premios. El Score, el Índice PIT, la salud del modelo y los demás indicadores no representan probabilidades de ganar.
 
 Desarrollado por:
 PRIME Innovation Thinking
+
+Sitio web:
+https://primeinnovationthinking.com
+
+Política de privacidad después de publicar GitHub Pages:
+https://cesarcz75.github.io/Oraculo-Diosa-Fortuna/privacy.html

@@ -1,0 +1,42 @@
+CHECKLIST DE PUBLICACIÓN — VERSIÓN 1.0
+
+CÓDIGO
+[ ] Build Windows exitoso.
+[ ] Build and Deploy Web exitoso.
+[ ] Publish Professional Release exitoso.
+[ ] flutter analyze sin incidencias.
+[ ] flutter test sin fallos.
+
+GOOGLE PLAY
+[ ] Crear aplicación en Play Console.
+[ ] Usar package ID com.primeinnovationthinking.oraculodiosafortuna.
+[ ] Configurar Play App Signing.
+[ ] Crear y respaldar la llave de carga.
+[ ] Configurar los cuatro secretos de GitHub.
+[ ] Subir el AAB firmado.
+[ ] Publicar la política de privacidad.
+[ ] Completar Seguridad de datos.
+[ ] Completar clasificación de contenido.
+[ ] Declarar que no vende apuestas ni boletos.
+[ ] Preparar icono 512x512, gráfico de funciones y capturas.
+[ ] Ejecutar prueba interna/cerrada según los requisitos vigentes de Play Console.
+
+WEB
+[ ] Activar GitHub Pages con GitHub Actions como fuente.
+[ ] Ejecutar Build and Deploy Web.
+[ ] Comprobar la aplicación en /Oraculo-Diosa-Fortuna/.
+[ ] Comprobar /Oraculo-Diosa-Fortuna/privacy.html.
+[ ] Añadir el enlace web en primeinnovationthinking.com.
+
+WINDOWS
+[ ] Descargar Oraculo_Diosa_Fortuna_Windows.zip.
+[ ] Probarlo en una computadora Windows limpia.
+[ ] Publicar el ZIP en la página web o en GitHub Releases.
+
+CONTROL FINAL
+[ ] Generar ranking.
+[ ] Abrir ATHENA.
+[ ] Ejecutar Métricas y Auditor.
+[ ] Probar Simulador sin alterar el modelo hasta confirmar.
+[ ] Generar y guardar un PDF.
+[ ] Revisar Centro de Ayuda y Acerca de.
