@@ -1152,40 +1152,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _metric({
-    required IconData icon,
-    required String title,
-    required String value,
-    required String caption,
-  }) {
-    return SizedBox(
-      width: 190,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Icon(icon, color: gold, size: 28),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(title, style: const TextStyle(color: Colors.white60)),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    color: gold,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(caption),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  
 
   void _showCombinationExplanation(RankedCombination item) {
     showDialog<void>(

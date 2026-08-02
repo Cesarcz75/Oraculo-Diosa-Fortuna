@@ -252,7 +252,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
 class _DiagnosticsCard extends StatelessWidget {
   const _DiagnosticsCard({required this.diagnostics});
 
-  static const Color gold = Color(0xFFE8B85A);
+
   static const Color panel = Color(0xFF1A1022);
 
   final SystemDiagnostics diagnostics;
