@@ -13,6 +13,7 @@ import '../model_comparison/model_comparison_screen.dart';
 import '../athena/athena_screen.dart';
 import '../reports/professional_report_screen.dart';
 import '../pit_metrics/pit_metrics_screen.dart';
+import '../pit_audit/pit_audit_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -278,7 +279,7 @@ class _HomeScreenState extends State<HomeScreen> {
           modelName: 'Modelo Oficial PIT',
           modelVersion: '1.0.0',
           engineName: 'Motor Fortuna',
-          engineVersion: '5.1.0',
+          engineVersion: '5.2.0',
           rules: <RuleConfig>[],
           disclaimer: '',
         );
@@ -288,6 +289,11 @@ class _HomeScreenState extends State<HomeScreen> {
       PitMetricsScreen(
         model: config,
         modelHistory: _modelHistory,
+        drawHistory: _history,
+        ranking: _ranking,
+      ),
+      PitAuditScreen(
+        model: config,
         drawHistory: _history,
         ranking: _ranking,
       ),
@@ -367,6 +373,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   icon: Icon(Icons.monitor_heart_outlined),
                   selectedIcon: Icon(Icons.monitor_heart),
                   label: Text('Métricas PIT'),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.fact_check_outlined),
+                  selectedIcon: Icon(Icons.fact_check),
+                  label: Text('Auditor PIT'),
                 ),
                 NavigationRailDestination(
                   icon: Icon(Icons.bar_chart_outlined),

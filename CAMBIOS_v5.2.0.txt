@@ -1,0 +1,22 @@
+ORÁCULO DIOSA FORTUNA PROFESSIONAL v5.2.0
+
+NUEVA CAPACIDAD: AUDITOR PIT
+
+- Nueva opción Auditor PIT en el menú.
+- Puntuación de auditoría de 0 a 100.
+- Hallazgos críticos, advertencias e informativos.
+- Detección de reglas activas insuficientes.
+- Detección de evidencia baja.
+- Detección de pesos nulos, extremos o casi nulos.
+- Detección de nombres de reglas duplicados.
+- Detección de influencia excesivamente concentrada.
+- Detección de reglas activas sin participación en el Score.
+- Revisión de profundidad histórica.
+- Recomendación concreta para cada hallazgo.
+- Filtros por severidad.
+- Nuevas pruebas automáticas del auditor.
+
+ACLARACIÓN
+
+El Auditor PIT revisa calidad metodológica y configuración.
+No emite predicciones ni probabilidades de ganar.
