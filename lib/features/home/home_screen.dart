@@ -6,6 +6,7 @@ import '../../core/services/history_repository.dart';
 import '../../core/services/model_config_repository.dart';
 import '../../core/services/ranking_worker.dart';
 import '../laboratory/laboratory_screen.dart';
+import '../research_center/research_center_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -225,7 +226,7 @@ class _HomeScreenState extends State<HomeScreen> {
         const ModelConfig(
           modelName: 'Modelo Oficial PIT',
           engineName: 'Motor Fortuna',
-          engineVersion: '3.4.0',
+          engineVersion: '3.5.0',
           rules: <RuleConfig>[],
           disclaimer: '',
         );
@@ -235,6 +236,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _buildStatistics(),
       _buildHistory(),
       LaboratoryScreen(history: _history),
+      ResearchCenterScreen(config: config),
       _buildSettings(config),
       _buildAbout(config),
     ];
@@ -295,6 +297,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   icon: Icon(Icons.science_outlined),
                   selectedIcon: Icon(Icons.science),
                   label: Text('Laboratorio'),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.rule_folder_outlined),
+                  selectedIcon: Icon(Icons.rule_folder),
+                  label: Text('Centro PIT'),
                 ),
                 NavigationRailDestination(
                   icon: Icon(Icons.tune_outlined),

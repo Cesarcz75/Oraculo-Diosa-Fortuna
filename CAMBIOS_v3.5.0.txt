@@ -1,0 +1,17 @@
+ORÁCULO DIOSA FORTUNA PROFESSIONAL v3.5.0
+
+NUEVA CAPACIDAD: CENTRO DE INVESTIGACIÓN PIT
+
+- Nueva opción Centro PIT en el menú.
+- Biblioteca de reglas del Modelo Oficial PIT.
+- Búsqueda por nombre, ID o categoría.
+- Filtro por estado de validación.
+- Ficha técnica de cada regla.
+- Nivel de evidencia visual de 1 a 5.
+- Autor, versión de incorporación, peso y descripción.
+- Métricas de reglas registradas y activas.
+- Nuevas pruebas automáticas del modelo de configuración.
+
+IMPORTANTE
+Los niveles de evidencia son una clasificación interna de investigación.
+No representan una probabilidad de ganar.

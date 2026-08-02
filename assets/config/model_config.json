@@ -1,40 +1,89 @@
 {
   "modelName": "Modelo Oficial PIT",
   "engineName": "Motor Fortuna",
-  "engineVersion": "3.2.0",
+  "engineVersion": "3.5.0",
   "rules": {
     "sum": {
+      "id": "PIT-001",
       "label": "Suma histórica",
+      "category": "Distribución",
+      "description": "Evalúa qué tan frecuente ha sido históricamente la suma total de una combinación.",
+      "status": "Oficial",
+      "evidenceLevel": 5,
+      "author": "PRIME Innovation Thinking",
+      "introducedVersion": "2.0.0",
       "enabled": true,
       "weight": 2.0
     },
     "parity": {
+      "id": "PIT-002",
       "label": "Paridad",
+      "category": "Composición",
+      "description": "Valora la cantidad de números pares e impares respecto a su distribución histórica.",
+      "status": "Validada",
+      "evidenceLevel": 4,
+      "author": "PRIME Innovation Thinking",
+      "introducedVersion": "2.0.0",
       "enabled": true,
       "weight": 0.8
     },
     "repeat": {
+      "id": "PIT-003",
       "label": "Repetición",
+      "category": "Transición",
+      "description": "Mide la cantidad de números que se repiten respecto al sorteo inmediatamente anterior.",
+      "status": "Validada",
+      "evidenceLevel": 4,
+      "author": "PRIME Innovation Thinking",
+      "introducedVersion": "2.0.0",
       "enabled": true,
       "weight": 1.2
     },
     "numberFrequency": {
+      "id": "PIT-004",
       "label": "Frecuencia individual",
+      "category": "Frecuencia",
+      "description": "Integra la frecuencia histórica de cada número de la combinación.",
+      "status": "En validación",
+      "evidenceLevel": 3,
+      "author": "PRIME Innovation Thinking",
+      "introducedVersion": "2.0.0",
       "enabled": true,
       "weight": 0.35
     },
     "pairLift": {
+      "id": "PIT-005",
       "label": "Pares históricos",
+      "category": "Correlación",
+      "description": "Evalúa la fuerza histórica de las parejas de números dentro de una combinación.",
+      "status": "En validación",
+      "evidenceLevel": 3,
+      "author": "PRIME Innovation Thinking",
+      "introducedVersion": "2.0.0",
       "enabled": true,
       "weight": 0.45
     },
     "consecutive": {
+      "id": "PIT-006",
       "label": "Consecutivos",
+      "category": "Estructura",
+      "description": "Premia o penaliza la cantidad de parejas consecutivas según la configuración del modelo.",
+      "status": "Experimental",
+      "evidenceLevel": 2,
+      "author": "PRIME Innovation Thinking",
+      "introducedVersion": "2.0.0",
       "enabled": true,
       "weight": 0.25
     },
     "lowHigh": {
+      "id": "PIT-007",
       "label": "Bajos y altos",
+      "category": "Distribución",
+      "description": "Valora el equilibrio entre números bajos y altos dentro del universo de Melate Retro.",
+      "status": "Experimental",
+      "evidenceLevel": 2,
+      "author": "PRIME Innovation Thinking",
+      "introducedVersion": "2.0.0",
       "enabled": true,
       "weight": 0.08
     }
