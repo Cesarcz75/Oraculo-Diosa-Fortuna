@@ -1,6 +1,7 @@
 import 'dart:math';
 import '../models/ranked_combination.dart';
 import '../models/model_config.dart';
+import 'score_engine.dart';
 
 class StatisticalEngine {
   StatisticalEngine(this.history, this.config) {
@@ -12,6 +13,7 @@ class StatisticalEngine {
 
   final List<List<int>> history;
   final ModelConfig config;
+  final ScoreEngine _scoreEngine = const ScoreEngine();
 
   late final List<double> _numberProbability;
   late final List<double> _sumProbability;
@@ -149,18 +151,16 @@ class StatisticalEngine {
           -(lows - 3).abs() * lowHighRule.weight;
     }
 
-    final double score = contributions.values.fold<double>(
-      0,
-      (double total, double value) => total + value,
+    final breakdown = _scoreEngine.build(
+      Map<String, double>.unmodifiable(contributions),
     );
 
     return RankedCombination(
       numbers: List<int>.unmodifiable(combo),
-      score: score,
       sum: sum,
       evens: evens,
       repeated: repeated,
-      contributions: Map<String, double>.unmodifiable(contributions),
+      breakdown: breakdown,
     );
   }
 

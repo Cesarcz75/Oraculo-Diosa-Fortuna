@@ -623,26 +623,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showCombinationExplanation(RankedCombination item) {
-    final List<MapEntry<String, double>> entries =
-        item.contributions.entries.toList()
-          ..sort(
-            (MapEntry<String, double> a, MapEntry<String, double> b) =>
-                b.value.abs().compareTo(a.value.abs()),
-          );
-
-    final double magnitude = entries.fold<double>(
-      0,
-      (double total, MapEntry<String, double> entry) =>
-          total + entry.value.abs(),
-    );
-
     showDialog<void>(
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Text('Explicación del ranking'),
+          title: const Text('Score Breakdown'),
           content: SizedBox(
-            width: 560,
+            width: 600,
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -656,26 +643,21 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    'Puntaje total: ${item.score.toStringAsFixed(3)}',
-                  ),
-                  Text(
-                    'Suma ${item.sum} · '
-                    '${item.evens} pares / ${item.odds} impares · '
-                    '${item.repeated} repetidos',
+                  Wrap(
+                    spacing: 22,
+                    runSpacing: 8,
+                    children: <Widget>[
+                      Text('Puntaje: ${item.score.toStringAsFixed(3)}'),
+                      Text('Índice PIT: ${item.pitIndex.toStringAsFixed(1)}'),
+                      Text(
+                        'Suma ${item.sum} · ${item.evens}P / '
+                        '${item.odds}I · ${item.repeated} repetidos',
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 18),
-                  const Text(
-                    'Contribución de las reglas',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 12),
-                  ...entries.map((MapEntry<String, double> entry) {
-                    final double share = magnitude == 0
-                        ? 0
-                        : entry.value.abs() / magnitude;
-                    final bool positive = entry.value >= 0;
-
+                  ...item.breakdown.rules.map((rule) {
+                    final bool positive = rule.weightedValue >= 0;
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 14),
                       child: Column(
@@ -693,9 +675,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 size: 20,
                               ),
                               const SizedBox(width: 8),
-                              Expanded(child: Text(entry.key)),
+                              Expanded(child: Text(rule.label)),
                               Text(
-                                entry.value.toStringAsFixed(3),
+                                rule.weightedValue.toStringAsFixed(3),
                                 style: TextStyle(
                                   color: positive
                                       ? Colors.greenAccent
@@ -707,7 +689,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           const SizedBox(height: 6),
                           LinearProgressIndicator(
-                            value: share,
+                            value: rule.influence,
                             color: positive
                                 ? Colors.greenAccent
                                 : Colors.orangeAccent,
@@ -715,8 +697,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            '${(share * 100).toStringAsFixed(1)}% '
-                            'de la magnitud total del puntaje',
+                            '${(rule.influence * 100).toStringAsFixed(1)}% '
+                            'de influencia relativa',
                             style: const TextStyle(
                               color: Colors.white60,
                               fontSize: 12,
@@ -728,12 +710,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   }),
                   const SizedBox(height: 4),
                   const Text(
-                    'Esta explicación describe cómo el modelo construyó '
-                    'el puntaje. No representa una probabilidad de ganar.',
-                    style: TextStyle(
-                      color: Colors.white60,
-                      fontSize: 12,
-                    ),
+                    'El Índice PIT mide qué tan distribuido está el puntaje '
+                    'entre las reglas activas. No representa probabilidad de ganar.',
+                    style: TextStyle(color: Colors.white60, fontSize: 12),
                   ),
                 ],
               ),
@@ -941,6 +920,7 @@ class _RankingTable extends StatelessWidget {
           DataColumn(label: Text('Paridad')),
           DataColumn(label: Text('Repite')),
           DataColumn(label: Text('Puntaje')),
+          DataColumn(label: Text('Índice PIT')),
           DataColumn(label: Text('Explicación')),
         ],
         rows: List<DataRow>.generate(
@@ -963,6 +943,7 @@ class _RankingTable extends StatelessWidget {
                 DataCell(Text('${item.evens}P / ${item.odds}I')),
                 DataCell(Text('${item.repeated}')),
                 DataCell(Text(item.score.toStringAsFixed(3))),
+                DataCell(Text(item.pitIndex.toStringAsFixed(1))),
                 DataCell(
                   IconButton(
                     tooltip: 'Ver contribución de reglas',

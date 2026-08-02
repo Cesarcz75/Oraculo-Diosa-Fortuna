@@ -1,0 +1,18 @@
+ORÁCULO DIOSA FORTUNA PROFESSIONAL v4.1.0
+
+NUEVA CAPACIDAD: SCORE ENGINE Y SCORE BREAKDOWN
+
+- Nuevo Score Engine centralizado.
+- El ranking conserva el puntaje ponderado del Modelo PIT.
+- Cada combinación incluye un desglose estructurado por regla.
+- Cálculo de influencia relativa de cada regla.
+- Primera versión del Índice PIT (0–100).
+- Nueva columna Índice PIT en el ranking.
+- Ventana Score Breakdown renovada.
+- Serialización compatible con el proceso en segundo plano.
+- Nuevas pruebas automáticas del Score Engine.
+
+ACLARACIÓN
+
+El Índice PIT mide la distribución interna del puntaje entre reglas activas.
+No es una probabilidad de ganar ni modifica las probabilidades del sorteo.

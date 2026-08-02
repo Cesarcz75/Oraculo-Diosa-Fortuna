@@ -18,8 +18,9 @@ void main() {
 
     final ModelConfig config = ModelConfig.fromMap(<String, dynamic>{
       'modelName': 'Prueba',
+      'modelVersion': '1.0.0',
       'engineName': 'Motor Fortuna',
-      'engineVersion': '3.2.0',
+      'engineVersion': '4.1.0',
       'rules': <String, dynamic>{
         'sum': <String, dynamic>{'enabled': true, 'weight': 2.0},
         'parity': <String, dynamic>{'enabled': true, 'weight': 0.8},
@@ -38,7 +39,8 @@ void main() {
 
     expect(result.numbers.length, 6);
     expect(result.sum, 103);
-    expect(result.contributions, isNotEmpty);
+    expect(result.breakdown.rules, isNotEmpty);
+    expect(result.pitIndex, inInclusiveRange(0, 100));
     expect(
       result.contributions.values.fold<double>(
         0,
