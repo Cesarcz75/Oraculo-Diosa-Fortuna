@@ -16,7 +16,7 @@ void main() {
   );
 
   test('evalúa estabilidad de un rango de suma', () {
-    const LaboratoryExperiment experiment = LaboratoryExperiment(
+    final LaboratoryExperiment experiment = LaboratoryExperiment(
       id: 'EXP-1',
       name: 'Suma',
       description: 'Prueba',
@@ -38,7 +38,7 @@ void main() {
   });
 
   test('rechaza históricos demasiado pequeños', () {
-    const LaboratoryExperiment experiment = LaboratoryExperiment(
+    final LaboratoryExperiment experiment = LaboratoryExperiment(
       id: 'EXP-2',
       name: 'Paridad',
       description: 'Prueba',
