@@ -157,7 +157,7 @@ class _ModelComparisonScreenState extends State<ModelComparisonScreen> {
     required ValueChanged<ModelConfig> onChanged,
   }) {
     return DropdownButtonFormField<ModelConfig>(
-      value: value,
+      initialValue: value,
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),
