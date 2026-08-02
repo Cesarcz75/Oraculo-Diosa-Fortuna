@@ -1,0 +1,14 @@
+ORÁCULO DIOSA FORTUNA PROFESSIONAL v5.3.1
+
+CORRECCIÓN DE INTEGRACIÓN DEL SIMULADOR PIT
+
+- Se añadieron importaciones directas de PitMetrics y PitAuditReport.
+- Se corrige el error de clases no definidas durante flutter analyze.
+- No se modifica la lógica del Simulador PIT.
+- No se modifica ningún módulo estabilizado.
+
+CAUSA
+
+En Dart, las importaciones no son transitivas. Aunque pit_simulation.dart
+importe los modelos de Métricas y Auditoría, pit_simulation_engine.dart debe
+importarlos directamente porque utiliza esos tipos en variables locales.

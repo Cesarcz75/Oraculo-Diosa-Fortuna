@@ -1,4 +1,6 @@
 import '../models/model_config.dart';
+import '../models/pit_audit.dart';
+import '../models/pit_metrics.dart';
 import '../models/pit_simulation.dart';
 import '../models/ranked_combination.dart';
 import 'pit_audit_engine.dart';
