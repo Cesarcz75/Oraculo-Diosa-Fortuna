@@ -1,11 +1,23 @@
-name: Build Web
+name: Build and Deploy Web
 
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Checkout
@@ -20,7 +32,7 @@ jobs:
       - name: Generate Web platform
         run: flutter create . --platforms=web --project-name oraculo_diosa_fortuna --org com.primeinnovationthinking
 
-      - name: Get dependencies
+      - name: Dependencies
         run: flutter pub get
 
       - name: Analyze
@@ -30,10 +42,16 @@ jobs:
         run: flutter test
 
       - name: Build Web
-        run: flutter build web --release
+        run: flutter build web --release --base-href "/Oraculo-Diosa-Fortuna/"
 
-      - name: Upload Web build
-        uses: actions/upload-artifact@v4
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: Oraculo-Diosa-Fortuna-Web
-          path: build/web/
+          path: build/web
+
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

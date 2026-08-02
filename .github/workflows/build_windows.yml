@@ -1,4 +1,4 @@
-name: Build Windows
+name: Build Windows Download
 
 on:
   workflow_dispatch:
@@ -6,7 +6,6 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -20,7 +19,7 @@ jobs:
       - name: Generate Windows platform
         run: flutter create . --platforms=windows --project-name oraculo_diosa_fortuna --org com.primeinnovationthinking
 
-      - name: Get dependencies
+      - name: Dependencies
         run: flutter pub get
 
       - name: Analyze
@@ -29,17 +28,17 @@ jobs:
       - name: Test
         run: flutter test
 
-      - name: Build Windows release
+      - name: Build Windows
         run: flutter build windows --release
 
-      - name: Package release
+      - name: Package
         shell: pwsh
         run: |
           Compress-Archive `
             -Path build/windows/x64/runner/Release/* `
             -DestinationPath Oraculo_Diosa_Fortuna_Windows.zip
 
-      - name: Upload release
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: Oraculo-Diosa-Fortuna-Windows

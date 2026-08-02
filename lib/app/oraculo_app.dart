@@ -10,7 +10,7 @@ class OraculoApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Oráculo Diosa Fortuna',
+      title: 'Oráculo Diosa Fortuna Professional',
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(

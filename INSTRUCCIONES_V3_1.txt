@@ -1,0 +1,30 @@
+ORÁCULO DIOSA FORTUNA PROFESSIONAL v3.1.0
+
+ESTA ENTREGA YA CONTIENE DESARROLLO REAL:
+- Branding oficial integrado.
+- Logo discreto de PRIME Innovation Thinking.
+- Panel de estado del Motor Fortuna.
+- Archivos para Windows, Web y Android.
+- Material inicial para Google Play.
+- Configuración externa de reglas en JSON.
+
+ACTUALIZAR TU REPOSITORIO
+1. Conserva la carpeta oculta .git.
+2. Sustituye el resto del contenido por esta versión.
+3. Abre GitHub Desktop.
+4. Summary:
+   v3.1.0 Branding y Release multiplataforma
+5. Commit to main.
+6. Push origin.
+
+WINDOWS
+Actions > Build Windows Download > Run workflow.
+
+WEB
+Settings > Pages > Source: GitHub Actions.
+Después: Actions > Build and Deploy Web > Run workflow.
+
+ANDROID
+Actions > Build Android Release > Run workflow.
+El APK sirve para pruebas.
+El AAB todavía debe firmarse con tu llave definitiva antes de publicar.

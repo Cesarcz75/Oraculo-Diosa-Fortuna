@@ -1,16 +1,18 @@
-# Oráculo Diosa Fortuna Professional v2.0
+# Oráculo Diosa Fortuna Professional v3.1.0
 
-Base limpia y modular para Windows, Android y Web.
+Primer desarrollo de la etapa comercial.
 
-## Correcciones
+## Incluye
 
-- Prueba `widget_test.dart` actualizada para usar `OraculoApp`.
-- Conversión segura de mensajes entre isolates.
-- Tipos Dart endurecidos.
-- Workflows separados para Windows, Android y Web.
-- Pruebas automáticas antes de compilar.
+- Identidad visual oficial.
+- Sello discreto de PRIME Innovation Thinking.
+- Panel Motor Fortuna.
+- Configuración externa de reglas.
+- Build Windows.
+- Deploy Web.
+- APK y AAB Android.
+- Política de privacidad y ficha de Play Store.
 
-## Principio metodológico
+## Aviso
 
-El ranking no representa una probabilidad de ganar. Ninguna regla será tratada
-como predictiva sin validación fuera de muestra.
+La aplicación no garantiza premios ni modifica las probabilidades de un sorteo justo.

@@ -1,0 +1,43 @@
+{
+  "modelName": "Modelo Oficial PIT",
+  "engineName": "Motor Fortuna",
+  "engineVersion": "3.1.0",
+  "rules": {
+    "sum": {
+      "enabled": true,
+      "weight": 2.0,
+      "label": "Suma histórica"
+    },
+    "parity": {
+      "enabled": true,
+      "weight": 0.8,
+      "label": "Paridad"
+    },
+    "repeat": {
+      "enabled": true,
+      "weight": 1.2,
+      "label": "Repetición"
+    },
+    "frequency": {
+      "enabled": true,
+      "weight": 0.35,
+      "label": "Frecuencia individual"
+    },
+    "pairs": {
+      "enabled": true,
+      "weight": 0.45,
+      "label": "Pares históricos"
+    },
+    "consecutive": {
+      "enabled": true,
+      "weight": 0.25,
+      "label": "Consecutivos"
+    },
+    "lowHigh": {
+      "enabled": true,
+      "weight": 0.08,
+      "label": "Bajos y altos"
+    }
+  },
+  "disclaimer": "El índice de ajuste no representa una probabilidad de ganar. La aplicación no garantiza premios."
+}

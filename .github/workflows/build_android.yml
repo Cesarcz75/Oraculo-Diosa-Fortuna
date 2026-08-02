@@ -1,4 +1,4 @@
-name: Build Android
+name: Build Android Release
 
 on:
   workflow_dispatch:
@@ -6,7 +6,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,7 +25,7 @@ jobs:
       - name: Generate Android platform
         run: flutter create . --platforms=android --project-name oraculo_diosa_fortuna --org com.primeinnovationthinking
 
-      - name: Get dependencies
+      - name: Dependencies
         run: flutter pub get
 
       - name: Analyze
@@ -38,7 +37,7 @@ jobs:
       - name: Build APK
         run: flutter build apk --release
 
-      - name: Build App Bundle
+      - name: Build AAB
         run: flutter build appbundle --release
 
       - name: Upload APK

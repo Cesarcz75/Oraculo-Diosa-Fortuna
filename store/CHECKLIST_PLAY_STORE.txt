@@ -1,0 +1,14 @@
+ANTES DE PUBLICAR EN GOOGLE PLAY
+
+1. Crear la aplicación en Play Console.
+2. Definir el package ID definitivo:
+   com.primeinnovationthinking.oraculodiosafortuna
+3. Crear la llave de carga y configurar Play App Signing.
+4. Generar un AAB firmado.
+5. Publicar la política de privacidad en una URL.
+6. Subir el icono de 512 x 512.
+7. Preparar capturas de teléfono y tableta.
+8. Completar Seguridad de datos.
+9. Completar clasificación de contenido.
+10. Declarar que no vende apuestas ni boletos.
+11. Realizar las pruebas internas o cerradas exigidas por Play Console.
