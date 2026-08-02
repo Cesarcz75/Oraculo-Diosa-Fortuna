@@ -10,6 +10,7 @@ import '../research_center/research_center_screen.dart';
 import '../backtesting/backtesting_screen.dart';
 import '../model_settings/model_settings_screen.dart';
 import '../model_comparison/model_comparison_screen.dart';
+import '../athena/athena_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -275,7 +276,7 @@ class _HomeScreenState extends State<HomeScreen> {
           modelName: 'Modelo Oficial PIT',
           modelVersion: '1.0.0',
           engineName: 'Motor Fortuna',
-          engineVersion: '4.2.0',
+          engineVersion: '4.3.0',
           rules: <RuleConfig>[],
           disclaimer: '',
         );
@@ -297,6 +298,12 @@ class _HomeScreenState extends State<HomeScreen> {
       ModelComparisonScreen(
         activeModel: config,
         history: _modelHistory,
+      ),
+      AthenaScreen(
+        model: config,
+        modelHistory: _modelHistory,
+        drawHistory: _history,
+        ranking: _ranking,
       ),
       _buildAbout(config),
     ];
@@ -377,6 +384,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   icon: Icon(Icons.compare_arrows_outlined),
                   selectedIcon: Icon(Icons.compare_arrows),
                   label: Text('Comparador'),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.psychology_alt_outlined),
+                  selectedIcon: Icon(Icons.psychology_alt),
+                  label: Text('ATHENA'),
                 ),
                 NavigationRailDestination(
                   icon: Icon(Icons.info_outline),

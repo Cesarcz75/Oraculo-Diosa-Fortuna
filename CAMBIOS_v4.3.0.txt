@@ -1,0 +1,25 @@
+ORÁCULO DIOSA FORTUNA PROFESSIONAL v4.3.0
+
+NUEVA CAPACIDAD: ATHENA · ANALISTA PIT v1
+
+- Nueva opción ATHENA en el menú principal.
+- Consultas en español sobre el Modelo PIT.
+- Análisis de reglas con mayor peso y evidencia.
+- Resumen de cambios entre versiones.
+- Números más y menos frecuentes del histórico.
+- Resumen descriptivo de suma y paridad.
+- Análisis del primer lugar del ranking actual.
+- Panel de salud del Modelo PIT.
+- Consultas rápidas mediante botones.
+- Funcionamiento local, determinista y sin internet.
+- Nuevas pruebas automáticas del motor ATHENA.
+
+ALCANCE DE ATHENA v1
+
+ATHENA reconoce consultas específicas y responde con información almacenada
+en el Oráculo. No utiliza un modelo generativo ni inventa datos.
+
+ACLARACIÓN
+
+Los análisis son descriptivos y metodológicos.
+No constituyen predicciones ni probabilidades de ganar.
