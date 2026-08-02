@@ -7,6 +7,7 @@ import '../../core/services/model_config_repository.dart';
 import '../../core/services/ranking_worker.dart';
 import '../laboratory/laboratory_screen.dart';
 import '../research_center/research_center_screen.dart';
+import '../backtesting/backtesting_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -226,7 +227,7 @@ class _HomeScreenState extends State<HomeScreen> {
         const ModelConfig(
           modelName: 'Modelo Oficial PIT',
           engineName: 'Motor Fortuna',
-          engineVersion: '3.8.0',
+          engineVersion: '3.9.0',
           rules: <RuleConfig>[],
           disclaimer: '',
         );
@@ -236,6 +237,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _buildStatistics(),
       _buildHistory(),
       LaboratoryScreen(history: _history),
+      BacktestingScreen(history: _history),
       ResearchCenterScreen(config: config),
       _buildSettings(config),
       _buildAbout(config),
@@ -297,6 +299,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   icon: Icon(Icons.science_outlined),
                   selectedIcon: Icon(Icons.science),
                   label: Text('Laboratorio'),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.analytics_outlined),
+                  selectedIcon: Icon(Icons.analytics),
+                  label: Text('Backtesting'),
                 ),
                 NavigationRailDestination(
                   icon: Icon(Icons.rule_folder_outlined),

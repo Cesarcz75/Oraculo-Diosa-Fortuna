@@ -1,0 +1,18 @@
+ORÁCULO DIOSA FORTUNA PROFESSIONAL v3.9.0
+
+NUEVA CAPACIDAD: BACKTESTING PROFESIONAL
+
+- Nueva opción Backtesting en el menú.
+- Pruebas por ventanas móviles del histórico.
+- Ventanas configurables de 100, 200, 300 o 500 sorteos.
+- Paso configurable entre ventanas.
+- Cuatro tipos de hipótesis estructurales.
+- Promedio, mínimo, máximo y desviación entre ventanas.
+- Puntaje de consistencia temporal.
+- Tabla detallada con todas las ventanas.
+- Nuevas pruebas automáticas del motor de backtesting.
+
+ACLARACIÓN METODOLÓGICA
+
+La consistencia temporal mide cuánto varía una regla entre periodos históricos.
+No representa una probabilidad de ganar ni demuestra capacidad predictiva.
