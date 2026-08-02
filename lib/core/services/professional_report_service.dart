@@ -327,25 +327,23 @@ class ProfessionalReportService {
                       ],
                     ),
                     pw.SizedBox(height: 3),
-                    pw.Container(
-                      height: 6,
-                      decoration: pw.BoxDecoration(
-                        color: PdfColors.grey300,
-                        borderRadius: pw.BorderRadius.circular(3),
-                      ),
-                    child: pw.Container(
+					pw.Container(
+						height: 6,
+						decoration: pw.BoxDecoration(
+						color: PdfColors.grey300,
+						borderRadius: pw.BorderRadius.circular(3),
+					),
+					child: pw.Container(
 						width: 220 * share,
 						decoration: pw.BoxDecoration(
-							color: const PdfColor.fromInt(0xFFE8B85A),
-							borderRadius: pw.BorderRadius.circular(3),
-						),
+						color: const PdfColor.fromInt(0xFFE8B85A),
+						borderRadius: pw.BorderRadius.circular(3),
 					),
-          
-                      ),
-
-
-                ),
-              );
+				),
+				),
+				],
+				),
+				);
             },
           ),
         ],
