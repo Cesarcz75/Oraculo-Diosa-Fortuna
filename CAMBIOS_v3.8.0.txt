@@ -1,0 +1,21 @@
+ORÁCULO DIOSA FORTUNA PROFESSIONAL v3.8.0
+
+NUEVA CAPACIDAD: EXPEDIENTES PERSISTENTES
+
+- Los experimentos se guardan automáticamente en el dispositivo.
+- Los expedientes se recuperan al volver a abrir la aplicación.
+- El estado archivado/restaurado también se conserva.
+- Indicador visual de carga y guardado.
+- Serialización completa de hipótesis, métricas y resultados.
+- Persistencia compatible con Windows, Android y Web.
+- Nuevas pruebas automáticas de almacenamiento.
+
+ALCANCE
+
+El almacenamiento es local al dispositivo y a la instalación.
+En una futura versión se añadirá exportación/importación de expedientes.
+
+ACLARACIÓN
+
+Los expedientes guardan resultados históricos y métricas de estabilidad.
+No representan una probabilidad de ganar.

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/models/laboratory_experiment.dart';
 import '../../core/services/laboratory_engine.dart';
+import '../../core/services/experiment_repository.dart';
 
 class LaboratoryScreen extends StatefulWidget {
   const LaboratoryScreen({
@@ -19,11 +20,15 @@ class _LaboratoryScreenState extends State<LaboratoryScreen> {
   static const Color panel = Color(0xFF1A1022);
 
   final LaboratoryEngine _engine = const LaboratoryEngine();
+  final ExperimentRepository _repository = const ExperimentRepository();
   final List<ManagedExperiment> _experiments = <ManagedExperiment>[];
   final Set<String> _selectedIds = <String>{};
 
   ExperimentRuleType _ruleType = ExperimentRuleType.sumRange;
   bool _showArchived = false;
+  bool _loadingSavedExperiments = true;
+  bool _savingExperiments = false;
+  String _persistenceStatus = 'Cargando expedientes guardados...';
 
   final TextEditingController _nameController =
       TextEditingController(text: 'Rango de suma experimental');
@@ -34,6 +39,70 @@ class _LaboratoryScreenState extends State<LaboratoryScreen> {
       TextEditingController(text: '103');
   final TextEditingController _maximumController =
       TextEditingController(text: '136');
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedExperiments();
+  }
+
+  Future<void> _loadSavedExperiments() async {
+    try {
+      final List<ManagedExperiment> saved = await _repository.load();
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _experiments
+          ..clear()
+          ..addAll(saved);
+        _loadingSavedExperiments = false;
+        _persistenceStatus = saved.isEmpty
+            ? 'No hay expedientes guardados todavía.'
+            : '${saved.length} expediente(s) recuperado(s).';
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _loadingSavedExperiments = false;
+        _persistenceStatus = 'No se pudieron cargar: $error';
+      });
+    }
+  }
+
+  Future<void> _saveExperiments() async {
+    if (mounted) {
+      setState(() {
+        _savingExperiments = true;
+        _persistenceStatus = 'Guardando expedientes...';
+      });
+    }
+
+    try {
+      await _repository.save(_experiments);
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _savingExperiments = false;
+        _persistenceStatus =
+            '${_experiments.length} expediente(s) guardado(s) localmente.';
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _savingExperiments = false;
+        _persistenceStatus = 'Error al guardar: $error';
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No se pudieron guardar: $error')),
+      );
+    }
+  }
 
   @override
   void dispose() {
@@ -73,6 +142,31 @@ class _LaboratoryScreenState extends State<LaboratoryScreen> {
         const SizedBox(height: 6),
         const Text(
           'Crea, administra, duplica y compara hipótesis estructurales.',
+        ),
+        const SizedBox(height: 14),
+        Card(
+          color: panel,
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              children: <Widget>[
+                Icon(
+                  _loadingSavedExperiments
+                      ? Icons.sync
+                      : Icons.save_outlined,
+                  color: gold,
+                ),
+                const SizedBox(width: 10),
+                Expanded(child: Text(_persistenceStatus)),
+                if (_loadingSavedExperiments || _savingExperiments)
+                  const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+              ],
+            ),
+          ),
         ),
         const SizedBox(height: 20),
         Wrap(
@@ -357,6 +451,7 @@ class _LaboratoryScreenState extends State<LaboratoryScreen> {
       setState(() {
         _experiments.add(ManagedExperiment(result: result));
       });
+      _saveExperiments();
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('No se pudo ejecutar: $error')),
@@ -398,6 +493,7 @@ class _LaboratoryScreenState extends State<LaboratoryScreen> {
       _experiments[index] = item.copyWith(archived: !item.archived);
       _selectedIds.remove(item.result.experiment.id);
     });
+    _saveExperiments();
   }
 
   void _compareSelected() {
