@@ -1,7 +1,7 @@
 name: oraculo_diosa_fortuna
 description: Plataforma estadística multiplataforma para Melate Retro.
 publish_to: "none"
-version: 4.3.0+43
+version: 4.4.0+44
 
 environment:
   sdk: ">=3.4.0 <4.0.0"
@@ -11,6 +11,8 @@ dependencies:
     sdk: flutter
   csv: ^6.0.0
   shared_preferences: ^2.3.2
+  pdf: ^3.13.0
+  printing: ^5.15.0
 
 dev_dependencies:
   flutter_test:

@@ -11,6 +11,7 @@ import '../backtesting/backtesting_screen.dart';
 import '../model_settings/model_settings_screen.dart';
 import '../model_comparison/model_comparison_screen.dart';
 import '../athena/athena_screen.dart';
+import '../reports/professional_report_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -276,7 +277,7 @@ class _HomeScreenState extends State<HomeScreen> {
           modelName: 'Modelo Oficial PIT',
           modelVersion: '1.0.0',
           engineName: 'Motor Fortuna',
-          engineVersion: '4.3.0',
+          engineVersion: '4.4.0',
           rules: <RuleConfig>[],
           disclaimer: '',
         );
@@ -303,6 +304,11 @@ class _HomeScreenState extends State<HomeScreen> {
         model: config,
         modelHistory: _modelHistory,
         drawHistory: _history,
+        ranking: _ranking,
+      ),
+      ProfessionalReportScreen(
+        model: config,
+        historyCount: _history.length,
         ranking: _ranking,
       ),
       _buildAbout(config),
@@ -389,6 +395,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   icon: Icon(Icons.psychology_alt_outlined),
                   selectedIcon: Icon(Icons.psychology_alt),
                   label: Text('ATHENA'),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.picture_as_pdf_outlined),
+                  selectedIcon: Icon(Icons.picture_as_pdf),
+                  label: Text('Reportes'),
                 ),
                 NavigationRailDestination(
                   icon: Icon(Icons.info_outline),

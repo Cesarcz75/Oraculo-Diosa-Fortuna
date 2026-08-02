@@ -93,9 +93,9 @@ class ModelConfig {
   final String disclaimer;
   final DateTime? updatedAt;
   final String changeNote;
-  
+
   int get activeRuleCount =>
-    rules.where((RuleConfig rule) => rule.enabled).length;
+      rules.where((RuleConfig rule) => rule.enabled).length;
 
   ModelConfig copyWith({
     String? modelVersion,

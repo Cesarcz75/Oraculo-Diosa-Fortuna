@@ -1,0 +1,27 @@
+ORÁCULO DIOSA FORTUNA PROFESSIONAL v4.4.0
+
+NUEVA CAPACIDAD: REPORTES PROFESIONALES PDF
+
+- Nueva opción Reportes en el menú.
+- Vista previa integrada del documento.
+- Impresión y uso compartido mediante el sistema operativo.
+- Encabezado institucional de Oráculo Diosa Fortuna.
+- Firma discreta de PRIME Innovation Thinking.
+- Resumen ejecutivo del análisis.
+- Ranking completo o Top 10.
+- Score e Índice PIT.
+- Score Breakdown visual del primer lugar.
+- Configuración completa del Modelo PIT.
+- Campo editable de observaciones.
+- Nota metodológica automática.
+- Nueva prueba automática del modelo de reporte.
+
+DEPENDENCIAS
+
+- pdf 3.13.0
+- printing 5.15.0
+
+ACLARACIÓN
+
+El reporte documenta el análisis y el ajuste interno al Modelo PIT.
+No representa una probabilidad de ganar ni garantiza premios.
