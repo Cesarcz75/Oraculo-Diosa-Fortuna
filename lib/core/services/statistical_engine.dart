@@ -34,8 +34,7 @@ class StatisticalEngine {
         numberCounts[value]++;
       }
 
-      final int sum = draw.reduce((int a, int b) => a + b);
-      sumCounts[sum]++;
+      sumCounts[draw.reduce((int a, int b) => a + b)]++;
       parityCounts[draw.where((int value) => value.isEven).length]++;
 
       if (drawIndex > 0) {
@@ -74,12 +73,11 @@ class StatisticalEngine {
   }
 
   List<double> _normalize(List<double> values) {
-    final double total = values.fold<double>(0, (double a, double b) => a + b);
+    final double total = values.fold<double>(
+      0,
+      (double a, double b) => a + b,
+    );
     return values.map((double value) => value / total).toList();
-  }
-
-  double scoreOnly(List<int> combo, List<int> latest) {
-    return evaluate(combo, latest).score;
   }
 
   RankedCombination evaluate(List<int> combo, List<int> latest) {
@@ -116,12 +114,7 @@ class StatisticalEngine {
     }
     score += 0.45 * pairScore / 15;
 
-    if (consecutivePairs <= 1) {
-      score += 0.25;
-    } else {
-      score -= consecutivePairs * 0.25;
-    }
-
+    score += consecutivePairs <= 1 ? 0.25 : -(consecutivePairs * 0.25);
     score -= (lows - 3).abs() * 0.08;
 
     return RankedCombination(
@@ -159,8 +152,9 @@ class StatisticalEngine {
           for (int d = c + 1; d <= 37; d++) {
             for (int e = d + 1; e <= 38; e++) {
               for (int f = e + 1; f <= 39; f++) {
-                final List<int> combo = <int>[a, b, c, d, e, f];
-                consider(evaluate(combo, latest));
+                consider(
+                  evaluate(<int>[a, b, c, d, e, f], latest),
+                );
                 done++;
                 if (done % 25000 == 0) {
                   onProgress?.call(done, total);

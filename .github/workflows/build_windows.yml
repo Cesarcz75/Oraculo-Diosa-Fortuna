@@ -1,4 +1,4 @@
-name: Build Windows Installer
+name: Build Windows
 
 on:
   workflow_dispatch:
@@ -17,8 +17,8 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Create Windows platform
-        run: flutter create . --platforms=windows
+      - name: Generate Windows platform
+        run: flutter create . --platforms=windows --project-name oraculo_diosa_fortuna --org com.primeinnovationthinking
 
       - name: Get dependencies
         run: flutter pub get

@@ -6,7 +6,7 @@ class OraculoApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const seed = Color(0xFF8F4DFF);
+    const Color seed = Color(0xFF8F4DFF);
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,

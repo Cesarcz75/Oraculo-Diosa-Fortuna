@@ -55,12 +55,19 @@ class _HomeScreenState extends State<HomeScreen> {
         _controllers[index].text = last[index].toString();
       }
 
+      if (!mounted) {
+        return;
+      }
+
       setState(() {
         _history = history;
         _loading = false;
         _status = 'Histórico cargado: ${history.length} sorteos.';
       });
     } catch (error) {
+      if (!mounted) {
+        return;
+      }
       setState(() {
         _loading = false;
         _status = 'Error al cargar histórico: $error';
@@ -80,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    final List<int> result = parsed.cast<int>()..sort();
+    final List<int> result = parsed.whereType<int>().toList()..sort();
 
     if (result.toSet().length != 6) {
       throw const FormatException('Los seis números deben ser distintos.');
@@ -106,39 +113,48 @@ class _HomeScreenState extends State<HomeScreen> {
         _status = 'Evaluando las 3,262,623 combinaciones...';
       });
 
-      port.listen((dynamic message) {
-        if (!mounted || message is! Map<Object?, Object?>) {
+      port.listen((dynamic rawMessage) {
+        if (!mounted || rawMessage is! Map) {
           return;
         }
 
+        final Map<Object?, Object?> message =
+            Map<Object?, Object?>.from(rawMessage);
         final Object? type = message['type'];
 
         if (type == 'progress') {
-          final int done = message['done']! as int;
-          final int total = message['total']! as int;
-          setState(() {
-            _progress = done / total;
-            _status = 'Evaluadas $done de $total combinaciones.';
-          });
+          final Object? rawDone = message['done'];
+          final Object? rawTotal = message['total'];
+
+          if (rawDone is int && rawTotal is int) {
+            setState(() {
+              _progress = rawDone / rawTotal;
+              _status =
+                  'Evaluadas $rawDone de $rawTotal combinaciones.';
+            });
+          }
           return;
         }
 
         if (type == 'result') {
-          final List<Object?> rawItems = message['items']! as List<Object?>;
-          final List<RankedCombination> ranking = rawItems
-              .map(
-                (Object? item) => RankedCombination.fromMap(
-                  item! as Map<Object?, Object?>,
-                ),
-              )
-              .toList(growable: false);
+          final Object? rawItems = message['items'];
+          if (rawItems is List) {
+            final List<RankedCombination> ranking = rawItems
+                .whereType<Map>()
+                .map(
+                  (Map item) => RankedCombination.fromMap(
+                    Map<Object?, Object?>.from(item),
+                  ),
+                )
+                .toList(growable: false);
 
-          setState(() {
-            _ranking = ranking;
-            _running = false;
-            _progress = 1;
-            _status = 'Análisis terminado.';
-          });
+            setState(() {
+              _ranking = ranking;
+              _running = false;
+              _progress = 1;
+              _status = 'Análisis terminado.';
+            });
+          }
           port.close();
           return;
         }
@@ -227,7 +243,12 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             const VerticalDivider(width: 1),
-            Expanded(child: IndexedStack(index: _selectedIndex, children: pages)),
+            Expanded(
+              child: IndexedStack(
+                index: _selectedIndex,
+                children: pages,
+              ),
+            ),
           ],
         ),
       ),
@@ -313,14 +334,13 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
 
-    final List<({int number, int count})> ranked =
-        List<({int number, int count})>.generate(
+    final List<MapEntry<int, int>> ranked = List<MapEntry<int, int>>.generate(
       39,
-      (int index) => (number: index + 1, count: counts[index + 1]),
+      (int index) => MapEntry<int, int>(index + 1, counts[index + 1]),
     )..sort(
-            (({int number, int count}) a, ({int number, int count}) b) =>
-                b.count.compareTo(a.count),
-          );
+        (MapEntry<int, int> a, MapEntry<int, int> b) =>
+            b.value.compareTo(a.value),
+      );
 
     return ListView(
       padding: const EdgeInsets.all(24),
@@ -334,12 +354,12 @@ class _HomeScreenState extends State<HomeScreen> {
               children: ranked
                   .take(15)
                   .map(
-                    (({int number, int count}) item) => ListTile(
-                      leading: CircleAvatar(child: Text('${item.number}')),
+                    (MapEntry<int, int> item) => ListTile(
+                      leading: CircleAvatar(child: Text('${item.key}')),
                       title: LinearProgressIndicator(
-                        value: item.count / ranked.first.count,
+                        value: item.value / ranked.first.value,
                       ),
-                      trailing: Text('${item.count}'),
+                      trailing: Text('${item.value}'),
                     ),
                   )
                   .toList(),

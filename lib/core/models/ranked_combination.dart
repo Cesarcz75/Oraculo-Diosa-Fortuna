@@ -27,12 +27,26 @@ class RankedCombination {
   }
 
   factory RankedCombination.fromMap(Map<Object?, Object?> map) {
+    final Object? rawNumbers = map['numbers'];
+    final Object? rawScore = map['score'];
+    final Object? rawSum = map['sum'];
+    final Object? rawEvens = map['evens'];
+    final Object? rawRepeated = map['repeated'];
+
+    if (rawNumbers is! List ||
+        rawScore is! num ||
+        rawSum is! int ||
+        rawEvens is! int ||
+        rawRepeated is! int) {
+      throw const FormatException('Resultado de ranking inválido.');
+    }
+
     return RankedCombination(
-      numbers: List<int>.from(map['numbers']! as List<Object?>),
-      score: (map['score']! as num).toDouble(),
-      sum: map['sum']! as int,
-      evens: map['evens']! as int,
-      repeated: map['repeated']! as int,
+      numbers: rawNumbers.cast<int>(),
+      score: rawScore.toDouble(),
+      sum: rawSum,
+      evens: rawEvens,
+      repeated: rawRepeated,
     );
   }
 }

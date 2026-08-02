@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-web:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,20 +17,23 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Create platform folders
-        run: flutter create . --platforms=windows,android,web
+      - name: Generate Web platform
+        run: flutter create . --platforms=web --project-name oraculo_diosa_fortuna --org com.primeinnovationthinking
 
       - name: Get dependencies
         run: flutter pub get
 
-      - name: Build web release
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
+      - name: Build Web
         run: flutter build web --release
 
-      - name: Package web build
-        run: tar -czf Oraculo_Diosa_Fortuna_Web.tar.gz -C build/web .
-
-      - name: Upload web artifact
+      - name: Upload Web build
         uses: actions/upload-artifact@v4
         with:
           name: Oraculo-Diosa-Fortuna-Web
-          path: Oraculo_Diosa_Fortuna_Web.tar.gz
+          path: build/web/

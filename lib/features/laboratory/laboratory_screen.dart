@@ -23,9 +23,8 @@ class LaboratoryScreen extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             child: Text(
               'Histórico disponible: ${history.length} sorteos.\n\n'
-              'La siguiente fase incorporará backtesting fuera de muestra, '
-              'comparación contra azar y optimización de pesos. Ninguna regla '
-              'se marcará como predictiva sin validación temporal.',
+              'La siguiente fase incorporará validación fuera de muestra, '
+              'comparación contra azar y optimización de pesos.',
             ),
           ),
         ),

@@ -1,18 +1,16 @@
-# Oráculo Diosa Fortuna Professional v1.0
+# Oráculo Diosa Fortuna Professional v2.0
 
-Reconstrucción limpia y modular del proyecto.
+Base limpia y modular para Windows, Android y Web.
 
-## Arquitectura
+## Correcciones
 
-- `lib/app`: configuración general.
-- `lib/core/models`: modelos de datos.
-- `lib/core/services`: histórico, motor y proceso de ranking.
-- `lib/features/home`: interfaz principal.
-- `lib/features/laboratory`: laboratorio.
-- `test`: pruebas automáticas.
-- `.github/workflows`: compilación automatizada.
+- Prueba `widget_test.dart` actualizada para usar `OraculoApp`.
+- Conversión segura de mensajes entre isolates.
+- Tipos Dart endurecidos.
+- Workflows separados para Windows, Android y Web.
+- Pruebas automáticas antes de compilar.
 
 ## Principio metodológico
 
-Ninguna regla debe incorporarse como predictiva sin validación fuera de muestra.
-El ranking es descriptivo y no garantiza premios.
+El ranking no representa una probabilidad de ganar. Ninguna regla será tratada
+como predictiva sin validación fuera de muestra.

@@ -1,0 +1,35 @@
+ORÁCULO DIOSA FORTUNA PROFESSIONAL v2.0
+
+Esta versión corrige la prueba automática MyApp y endurece los tipos de Dart.
+
+REEMPLAZO DEL PROYECTO LOCAL
+
+1. Haz una copia de seguridad de:
+   C:\Users\HP\Documents\GitHub\Oraculo-Diosa-Fortuna
+
+2. Conserva únicamente la carpeta oculta .git.
+
+3. Borra el resto del contenido del repositorio local.
+
+4. Copia TODO el contenido de esta entrega dentro del repositorio,
+   incluida la carpeta .github.
+
+5. Abre GitHub Desktop.
+
+6. Summary:
+   Professional v2.0 - base limpia y pruebas corregidas
+
+7. Pulsa Commit to main.
+
+8. Pulsa Push origin.
+
+9. En GitHub > Actions ejecuta Build Windows.
+
+RESULTADOS ESPERADOS
+
+El proceso debe ejecutar:
+- flutter analyze
+- flutter test
+- flutter build windows --release
+
+La prueba test/widget_test.dart ya usa OraculoApp y no MyApp.

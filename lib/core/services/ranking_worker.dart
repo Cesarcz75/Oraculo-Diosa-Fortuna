@@ -16,7 +16,7 @@ class RankingRequest {
   final SendPort replyPort;
 }
 
-Future<void> rankingWorker(RankingRequest request) async {
+void rankingWorker(RankingRequest request) {
   try {
     final StatisticalEngine engine = StatisticalEngine(request.history);
     final List<RankedCombination> ranking = engine.rankTop(
