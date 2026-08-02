@@ -1,0 +1,25 @@
+ORÁCULO DIOSA FORTUNA PROFESSIONAL v5.1.0
+
+NUEVA CAPACIDAD: MOTOR DE MÉTRICAS PIT
+
+- Nueva opción Métricas PIT en el menú.
+- Salud general del Modelo PIT.
+- Cobertura de reglas.
+- Evidencia promedio.
+- Balance del Score.
+- Robustez de pesos.
+- Profundidad histórica.
+- Madurez del versionado.
+- Influencia observada de cada regla.
+- Auditoría automática con alertas metodológicas.
+- Nuevas pruebas automáticas del motor.
+
+METODOLOGÍA
+
+La salud general combina cobertura, evidencia, equilibrio del Score,
+robustez de pesos, profundidad histórica y madurez de versiones.
+
+ACLARACIÓN
+
+Estas métricas describen la calidad interna del modelo.
+No representan probabilidades de ganar.
