@@ -30,7 +30,9 @@ jobs:
           cache: true
 
       - name: Generate Web platform
-        run: flutter create . --platforms=web --project-name oraculo_diosa_fortuna --org com.primeinnovationthinking
+        run: |
+          flutter create . --platforms=web --project-name oraculo_diosa_fortuna --org com.primeinnovationthinking
+          rm -f test/widget_test.dart
 
       - name: Dependencies
         run: flutter pub get
