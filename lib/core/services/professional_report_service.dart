@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -327,23 +326,28 @@ class ProfessionalReportService {
                       ],
                     ),
                     pw.SizedBox(height: 3),
-					pw.Container(
-						height: 6,
-						decoration: pw.BoxDecoration(
-						color: PdfColors.grey300,
-						borderRadius: pw.BorderRadius.circular(3),
-					),
-					child: pw.Container(
-						width: 220 * share,
-						decoration: pw.BoxDecoration(
-						color: const PdfColor.fromInt(0xFFE8B85A),
-						borderRadius: pw.BorderRadius.circular(3),
-					),
-				),
-				),
-				],
-				),
-				);
+                    pw.Container(
+                      width: 220,
+                      height: 6,
+                      decoration: pw.BoxDecoration(
+                        color: PdfColors.grey300,
+                        borderRadius: pw.BorderRadius.circular(3),
+                      ),
+                      child: pw.Align(
+                        alignment: pw.Alignment.centerLeft,
+                        child: pw.Container(
+                          width: 220 * share,
+                          height: 6,
+                          decoration: pw.BoxDecoration(
+                            color: const PdfColor.fromInt(0xFFE8B85A),
+                            borderRadius: pw.BorderRadius.circular(3),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
             },
           ),
         ],
