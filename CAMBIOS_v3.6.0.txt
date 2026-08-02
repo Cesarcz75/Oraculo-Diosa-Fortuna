@@ -1,0 +1,21 @@
+ORÁCULO DIOSA FORTUNA PROFESSIONAL v3.6.0
+
+NUEVA CAPACIDAD: LABORATORIO PIT FUNCIONAL
+
+- Creación de experimentos desde la interfaz.
+- Cuatro tipos de hipótesis:
+  1. Rango de suma.
+  2. Cantidad de pares.
+  3. Máximo de parejas consecutivas.
+  4. Repetidos respecto al sorteo anterior.
+- División automática 70% entrenamiento / 30% validación.
+- Medición de frecuencia en ambos periodos.
+- Diferencia temporal y puntaje de estabilidad.
+- Historial de experimentos durante la sesión.
+- Nuevas pruebas automáticas del motor de laboratorio.
+
+ACLARACIÓN METODOLÓGICA
+
+La estabilidad temporal no es una probabilidad de ganar ni demuestra predicción.
+Sirve para detectar si una regla estructural conserva un comportamiento parecido
+entre dos periodos del histórico.

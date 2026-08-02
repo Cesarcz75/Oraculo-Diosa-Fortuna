@@ -226,7 +226,7 @@ class _HomeScreenState extends State<HomeScreen> {
         const ModelConfig(
           modelName: 'Modelo Oficial PIT',
           engineName: 'Motor Fortuna',
-          engineVersion: '3.5.0',
+          engineVersion: '3.6.0',
           rules: <RuleConfig>[],
           disclaimer: '',
         );
