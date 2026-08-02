@@ -1,9 +1,9 @@
 import 'dart:isolate';
 import 'package:flutter/material.dart';
-import '../../core/models/ranked_combination.dart';
 import '../../core/models/model_config.dart';
-import '../../core/services/model_config_repository.dart';
+import '../../core/models/ranked_combination.dart';
 import '../../core/services/history_repository.dart';
+import '../../core/services/model_config_repository.dart';
 import '../../core/services/ranking_worker.dart';
 import '../laboratory/laboratory_screen.dart';
 
@@ -15,6 +15,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  static const Color gold = Color(0xFFE8B85A);
+  static const Color purple = Color(0xFF5B1FA3);
+  static const Color panel = Color(0xFF1A1022);
+
   final HistoryRepository _repository = const HistoryRepository();
   final ModelConfigRepository _configRepository =
       const ModelConfigRepository();
@@ -31,7 +35,8 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _running = false;
   double _progress = 0;
   int _selectedIndex = 0;
-  String _status = 'Cargando histórico...';
+  int _topN = 10;
+  String _status = 'Cargando Motor Fortuna...';
   ReceivePort? _receivePort;
   Isolate? _isolate;
 
@@ -73,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _history = history;
         _config = config;
         _loading = false;
-        _status = 'Histórico cargado: ${history.length} sorteos.';
+        _status = 'Motor Fortuna listo · ${history.length} sorteos cargados.';
       });
     } catch (error) {
       if (!mounted) {
@@ -81,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
       setState(() {
         _loading = false;
-        _status = 'Error al cargar histórico: $error';
+        _status = 'Error al iniciar: $error';
       });
     }
   }
@@ -147,7 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
             setState(() {
               _progress = rawDone / rawTotal;
               _status =
-                  'Evaluadas $rawDone de $rawTotal combinaciones.';
+                  'Analizando ${(_progress * 100).toStringAsFixed(1)}%';
             });
           }
           return;
@@ -169,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
               _ranking = ranking;
               _running = false;
               _progress = 1;
-              _status = 'Análisis terminado.';
+              _status = 'Análisis terminado con ${config.modelName}.';
             });
           }
           port.close();
@@ -190,7 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
         RankingRequest(
           history: _history,
           latest: latest,
-          topN: 10,
+          topN: _topN,
           replyPort: port.sendPort,
           config: config,
         ),
@@ -216,32 +221,65 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
+    final ModelConfig config = _config ??
+        const ModelConfig(
+          modelName: 'Modelo Oficial PIT',
+          engineName: 'Motor Fortuna',
+          engineVersion: '3.3.0',
+          rules: <RuleConfig>[],
+          disclaimer: '',
+        );
+
     final List<Widget> pages = <Widget>[
-      _buildHome(),
+      _buildDashboard(config),
       _buildStatistics(),
       _buildHistory(),
       LaboratoryScreen(history: _history),
+      _buildSettings(config),
+      _buildAbout(config),
     ];
 
     return Scaffold(
       body: SafeArea(
         child: Row(
           children: <Widget>[
-            NavigationRail(
-              extended: MediaQuery.sizeOf(context).width > 900,
+            _buildSidebar(),
+            const VerticalDivider(width: 1),
+            Expanded(
+              child: IndexedStack(
+                index: _selectedIndex,
+                children: pages,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSidebar() {
+    final bool extended = MediaQuery.sizeOf(context).width > 1020;
+
+    return SizedBox(
+      width: extended ? 230 : 90,
+      child: Column(
+        children: <Widget>[
+          const Padding(
+            padding: EdgeInsets.fromLTRB(10, 18, 10, 8),
+            child: _Brand(),
+          ),
+          Expanded(
+            child: NavigationRail(
+              extended: extended,
               selectedIndex: _selectedIndex,
               onDestinationSelected: (int index) {
                 setState(() => _selectedIndex = index);
               },
-              leading: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 18),
-                child: _Brand(),
-              ),
               destinations: const <NavigationRailDestination>[
                 NavigationRailDestination(
-                  icon: Icon(Icons.auto_awesome_outlined),
-                  selectedIcon: Icon(Icons.auto_awesome),
-                  label: Text('Inicio'),
+                  icon: Icon(Icons.dashboard_outlined),
+                  selectedIcon: Icon(Icons.dashboard),
+                  label: Text('Dashboard'),
                 ),
                 NavigationRailDestination(
                   icon: Icon(Icons.bar_chart_outlined),
@@ -258,13 +296,218 @@ class _HomeScreenState extends State<HomeScreen> {
                   selectedIcon: Icon(Icons.science),
                   label: Text('Laboratorio'),
                 ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.tune_outlined),
+                  selectedIcon: Icon(Icons.tune),
+                  label: Text('Configuración'),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.info_outline),
+                  selectedIcon: Icon(Icons.info),
+                  label: Text('Acerca de'),
+                ),
               ],
             ),
-            const VerticalDivider(width: 1),
-            Expanded(
-              child: IndexedStack(
-                index: _selectedIndex,
-                children: pages,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(10),
+            child: Image.asset(
+              'assets/images/pit_powered_by.png',
+              height: extended ? 52 : 34,
+              fit: BoxFit.contain,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDashboard(ModelConfig config) {
+    final int activeRules =
+        config.rules.where((RuleConfig rule) => rule.enabled).length;
+
+    return ListView(
+      padding: const EdgeInsets.all(24),
+      children: <Widget>[
+        Text(
+          'Oráculo Diosa Fortuna Professional',
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                color: gold,
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          '${config.engineName} v${config.engineVersion} · ${config.modelName}',
+        ),
+        const SizedBox(height: 20),
+        LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            final bool wide = constraints.maxWidth >= 850;
+            if (wide) {
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Expanded(flex: 3, child: _buildDrawCard()),
+                  const SizedBox(width: 16),
+                  Expanded(flex: 2, child: _buildGenerateCard()),
+                ],
+              );
+            }
+            return Column(
+              children: <Widget>[
+                _buildDrawCard(),
+                const SizedBox(height: 16),
+                _buildGenerateCard(),
+              ],
+            );
+          },
+        ),
+        const SizedBox(height: 18),
+        Card(
+          color: panel,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Wrap(
+              spacing: 36,
+              runSpacing: 18,
+              children: <Widget>[
+                _metric(
+                  icon: Icons.storage_outlined,
+                  title: 'Histórico',
+                  value: '${_history.length}',
+                  caption: 'sorteos cargados',
+                ),
+                _metric(
+                  icon: Icons.rule_outlined,
+                  title: 'Reglas activas',
+                  value: '$activeRules',
+                  caption: 'configurables',
+                ),
+                _metric(
+                  icon: Icons.check_circle_outline,
+                  title: 'Estado',
+                  value: 'LISTO',
+                  caption: config.engineName,
+                ),
+                _metric(
+                  icon: Icons.memory_outlined,
+                  title: 'Modelo',
+                  value: config.engineVersion,
+                  caption: config.modelName,
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 18),
+        Card(
+          color: panel,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: _ranking.isEmpty
+                ? Text(config.disclaimer)
+                : _RankingTable(ranking: _ranking),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDrawCard() {
+    return Card(
+      color: panel,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            const Text(
+              'ÚLTIMO SORTEO · MELATE RETRO',
+              style: TextStyle(
+                color: gold,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.8,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: List<Widget>.generate(
+                6,
+                (int index) => SizedBox(
+                  width: 74,
+                  child: TextField(
+                    controller: _controllers[index],
+                    keyboardType: TextInputType.number,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 20),
+                    decoration: InputDecoration(
+                      labelText: 'R${index + 1}',
+                      border: const OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            LinearProgressIndicator(
+              value: _progress,
+              color: gold,
+              backgroundColor: const Color(0xFF2A103A),
+            ),
+            const SizedBox(height: 8),
+            Text(_status),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGenerateCard() {
+    return Card(
+      color: panel,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            const Text(
+              'GENERAR COMBINACIONES',
+              style: TextStyle(
+                color: gold,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.8,
+              ),
+            ),
+            const SizedBox(height: 14),
+            const Text('Cantidad de resultados en el ranking'),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: <int>[10, 20, 50, 100]
+                  .map(
+                    (int value) => ChoiceChip(
+                      label: Text('$value'),
+                      selected: _topN == value,
+                      onSelected: _running
+                          ? null
+                          : (_) => setState(() => _topN = value),
+                    ),
+                  )
+                  .toList(),
+            ),
+            const SizedBox(height: 18),
+            FilledButton.icon(
+              onPressed: _running ? null : _generate,
+              icon: const Icon(Icons.auto_awesome),
+              label: Text('GENERAR TOP $_topN'),
+              style: FilledButton.styleFrom(
+                backgroundColor: gold,
+                foregroundColor: Colors.black,
+                padding: const EdgeInsets.symmetric(vertical: 16),
               ),
             ),
           ],
@@ -273,125 +516,38 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHome() {
-    return ListView(
-      padding: const EdgeInsets.all(24),
-      children: <Widget>[
-        Text(
-          'Oráculo Diosa Fortuna Professional',
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                color: const Color(0xFFE8B85A),
-                fontWeight: FontWeight.bold,
-              ),
-        ),
-        const SizedBox(height: 6),
-        const Text('Plataforma de investigación estadística · Melate Retro'),
-        const SizedBox(height: 20),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              children: <Widget>[
-                Image.asset(
-                  'assets/images/oraculo_logo.png',
-                  height: 92,
-                  width: 112,
-                  fit: BoxFit.contain,
-                ),
-                const SizedBox(width: 18),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      const Text(
-                        'MOTOR FORTUNA',
-                        style: TextStyle(
-                          color: Color(0xFFE8B85A),
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.3,
-                        ),
-                      ),
-                      const SizedBox(height: 7),
-                      const Text(
-                        'Estado: OPERANDO',
-                        style: TextStyle(
-                          fontSize: 19,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${_config?.modelName ?? 'Modelo Oficial PIT'} · '
-                        'v${_config?.engineVersion ?? '3.2.0'}',
-                        style: const TextStyle(color: Colors.white60),
-                      ),
-                    ],
-                  ),
-                ),
-                const Icon(
-                  Icons.check_circle,
-                  color: Colors.greenAccent,
-                  size: 34,
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 18),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
+  Widget _metric({
+    required IconData icon,
+    required String title,
+    required String value,
+    required String caption,
+  }) {
+    return SizedBox(
+      width: 190,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Icon(icon, color: gold, size: 28),
+          const SizedBox(width: 12),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
+                Text(title, style: const TextStyle(color: Colors.white60)),
                 Text(
-                  'Último resultado',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 14),
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: List<Widget>.generate(
-                    6,
-                    (int index) => SizedBox(
-                      width: 82,
-                      child: TextField(
-                        controller: _controllers[index],
-                        keyboardType: TextInputType.number,
-                        textAlign: TextAlign.center,
-                        decoration: InputDecoration(
-                          labelText: 'R${index + 1}',
-                          border: const OutlineInputBorder(),
-                        ),
-                      ),
-                    ),
+                  value,
+                  style: const TextStyle(
+                    color: gold,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 16),
-                FilledButton.icon(
-                  onPressed: _running ? null : _generate,
-                  icon: const Icon(Icons.auto_awesome),
-                  label: const Text('Generar Top 10'),
-                ),
-                const SizedBox(height: 14),
-                LinearProgressIndicator(value: _progress),
-                const SizedBox(height: 8),
-                Text(_status),
+                Text(caption),
               ],
             ),
           ),
-        ),
-        const SizedBox(height: 18),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: _ranking.isEmpty
-                ? const Text('Todavía no se ha generado un ranking.')
-                : _RankingTable(ranking: _ranking),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -417,16 +573,22 @@ class _HomeScreenState extends State<HomeScreen> {
         Text('Estadísticas', style: Theme.of(context).textTheme.headlineMedium),
         const SizedBox(height: 18),
         Card(
+          color: panel,
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
               children: ranked
-                  .take(15)
+                  .take(20)
                   .map(
                     (MapEntry<int, int> item) => ListTile(
-                      leading: CircleAvatar(child: Text('${item.key}')),
+                      leading: CircleAvatar(
+                        backgroundColor: purple,
+                        child: Text('${item.key}'),
+                      ),
                       title: LinearProgressIndicator(
                         value: item.value / ranked.first.value,
+                        color: gold,
+                        backgroundColor: const Color(0xFF2A103A),
                       ),
                       trailing: Text('${item.value}'),
                     ),
@@ -440,7 +602,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHistory() {
-    final List<List<int>> recent = _history.reversed.take(30).toList();
+    final List<List<int>> recent = _history.reversed.take(50).toList();
 
     return ListView(
       padding: const EdgeInsets.all(24),
@@ -448,6 +610,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Text('Histórico', style: Theme.of(context).textTheme.headlineMedium),
         const SizedBox(height: 18),
         Card(
+          color: panel,
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: DataTable(
@@ -475,6 +638,103 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     );
   }
+
+  Widget _buildSettings(ModelConfig config) {
+    return ListView(
+      padding: const EdgeInsets.all(24),
+      children: <Widget>[
+        Text(
+          'Configuración del modelo',
+          style: Theme.of(context).textTheme.headlineMedium,
+        ),
+        const SizedBox(height: 8),
+        Text(config.disclaimer),
+        const SizedBox(height: 18),
+        ...config.rules.map(
+          (RuleConfig rule) => Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Card(
+              color: panel,
+              child: ListTile(
+                leading: Icon(
+                  rule.enabled ? Icons.check_circle : Icons.cancel_outlined,
+                  color: rule.enabled ? Colors.greenAccent : Colors.white38,
+                ),
+                title: Text(rule.label),
+                subtitle: Text('Clave técnica: ${rule.key}'),
+                trailing: Text(
+                  'Peso ${rule.weight.toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    color: gold,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          'Los valores se leen desde assets/config/model_config.json. '
+          'El editor visual de pesos se incorporará en la siguiente versión.',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAbout(ModelConfig config) {
+    return ListView(
+      padding: const EdgeInsets.all(24),
+      children: <Widget>[
+        Center(
+          child: Image.asset(
+            'assets/images/oraculo_logo.png',
+            height: 190,
+          ),
+        ),
+        const SizedBox(height: 14),
+        const Center(
+          child: Text(
+            'ORÁCULO DIOSA FORTUNA PROFESSIONAL',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: gold,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Center(
+          child: Text(
+            '${config.engineName} v${config.engineVersion}',
+            style: const TextStyle(color: Colors.white60),
+          ),
+        ),
+        const SizedBox(height: 20),
+        const Card(
+          color: panel,
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Text(
+              'Plataforma de investigación estadística para Melate Retro. '
+              'No garantiza premios ni modifica las probabilidades '
+              'matemáticas de una combinación en un sorteo justo.',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+        Center(
+          child: Image.asset(
+            'assets/images/pit_powered_by.png',
+            height: 90,
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 class _Brand extends StatelessWidget {
@@ -486,8 +746,8 @@ class _Brand extends StatelessWidget {
       children: <Widget>[
         Image.asset(
           'assets/images/oraculo_logo.png',
-          height: 78,
-          width: 94,
+          height: 80,
+          width: 96,
           fit: BoxFit.contain,
         ),
         const SizedBox(height: 4),
@@ -498,13 +758,6 @@ class _Brand extends StatelessWidget {
             color: Color(0xFFE8B85A),
             fontWeight: FontWeight.bold,
           ),
-        ),
-        const SizedBox(height: 10),
-        Image.asset(
-          'assets/images/pit_powered_by.png',
-          height: 34,
-          width: 116,
-          fit: BoxFit.contain,
         ),
       ],
     );
@@ -527,6 +780,7 @@ class _RankingTable extends StatelessWidget {
           DataColumn(label: Text('Suma')),
           DataColumn(label: Text('Paridad')),
           DataColumn(label: Text('Repite')),
+          DataColumn(label: Text('Puntaje')),
         ],
         rows: List<DataRow>.generate(
           ranking.length,
@@ -535,10 +789,19 @@ class _RankingTable extends StatelessWidget {
             return DataRow(
               cells: <DataCell>[
                 DataCell(Text('${index + 1}')),
-                DataCell(Text(item.label)),
+                DataCell(
+                  Text(
+                    item.label,
+                    style: const TextStyle(
+                      color: Color(0xFFE8B85A),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
                 DataCell(Text('${item.sum}')),
                 DataCell(Text('${item.evens}P / ${item.odds}I')),
                 DataCell(Text('${item.repeated}')),
+                DataCell(Text(item.score.toStringAsFixed(3))),
               ],
             );
           },
