@@ -2,9 +2,13 @@ import 'dart:isolate';
 import 'package:flutter/material.dart';
 import '../../core/models/model_config.dart';
 import '../../core/models/ranked_combination.dart';
+import '../../core/models/pit_audit.dart';
+import '../../core/models/pit_metrics.dart';
 import '../../core/services/history_repository.dart';
 import '../../core/services/model_config_repository.dart';
 import '../../core/services/ranking_worker.dart';
+import '../../core/services/pit_audit_engine.dart';
+import '../../core/services/pit_metrics_engine.dart';
 import '../laboratory/laboratory_screen.dart';
 import '../research_center/research_center_screen.dart';
 import '../backtesting/backtesting_screen.dart';
@@ -280,7 +284,7 @@ class _HomeScreenState extends State<HomeScreen> {
           modelName: 'Modelo Oficial PIT',
           modelVersion: '1.0.0',
           engineName: 'Motor Fortuna',
-          engineVersion: '5.3.0',
+          engineVersion: '5.4.0',
           rules: <RuleConfig>[],
           disclaimer: '',
         );
@@ -459,25 +463,397 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildDashboard(ModelConfig config) {
-    final int activeRules =
-        config.rules.where((RuleConfig rule) => rule.enabled).length;
+    final PitMetrics metrics = const PitMetricsEngine().calculate(
+      model: config,
+      modelHistory: _modelHistory,
+      drawHistory: _history,
+      ranking: _ranking,
+    );
+    final PitAuditReport audit = const PitAuditEngine().audit(
+      model: config,
+      drawHistory: _history,
+      ranking: _ranking,
+    );
+
+    final RankedCombination? leader =
+        _ranking.isEmpty ? null : _ranking.first;
+    final Color healthColor = metrics.overallHealth >= 80
+        ? Colors.greenAccent
+        : metrics.overallHealth >= 60
+            ? Colors.amberAccent
+            : Colors.orangeAccent;
 
     return ListView(
       padding: const EdgeInsets.all(24),
       children: <Widget>[
-        Text(
-          'Oráculo Diosa Fortuna Professional',
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                color: gold,
-                fontWeight: FontWeight.bold,
+        Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: <Color>[
+                Color(0xFF24132E),
+                Color(0xFF120B18),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: gold.withValues(alpha: 0.28),
+            ),
+          ),
+          child: LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              final bool wide = constraints.maxWidth >= 780;
+              final Widget identity = Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  const Text(
+                    'CENTRO EJECUTIVO PIT',
+                    style: TextStyle(
+                      color: gold,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Oráculo Diosa Fortuna Professional',
+                    style:
+                        Theme.of(context).textTheme.headlineMedium?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                  ),
+                  const SizedBox(height: 7),
+                  Text(
+                    '${config.engineName} v${config.engineVersion} · '
+                    '${config.modelName} v${config.modelVersion}',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Icon(
+                        Icons.circle,
+                        color: healthColor,
+                        size: 11,
+                      ),
+                      const SizedBox(width: 7),
+                      Text(
+                        metrics.healthLabel,
+                        style: TextStyle(
+                          color: healthColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+
+              final Widget health = Container(
+                width: 220,
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.20),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Row(
+                  children: <Widget>[
+                    SizedBox(
+                      width: 76,
+                      height: 76,
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: <Widget>[
+                          CircularProgressIndicator(
+                            value: metrics.overallHealth / 100,
+                            strokeWidth: 8,
+                            color: healthColor,
+                            backgroundColor: const Color(0xFF382342),
+                          ),
+                          Center(
+                            child: Text(
+                              metrics.overallHealth.toStringAsFixed(0),
+                              style: const TextStyle(
+                                color: gold,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            'SALUD PIT',
+                            style: TextStyle(
+                              color: Colors.white60,
+                              fontSize: 11,
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                          SizedBox(height: 5),
+                          Text(
+                            'Índice metodológico',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+
+              if (wide) {
+                return Row(
+                  children: <Widget>[
+                    Expanded(child: identity),
+                    const SizedBox(width: 20),
+                    health,
+                  ],
+                );
+              }
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  identity,
+                  const SizedBox(height: 18),
+                  health,
+                ],
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 18),
+        Wrap(
+          spacing: 14,
+          runSpacing: 14,
+          children: <Widget>[
+            _executiveKpi(
+              icon: Icons.monitor_heart_outlined,
+              title: 'Salud del modelo',
+              value: metrics.overallHealth.toStringAsFixed(1),
+              caption: metrics.healthLabel,
+              accent: healthColor,
+              onTap: () => setState(() => _selectedIndex = 1),
+            ),
+            _executiveKpi(
+              icon: Icons.fact_check_outlined,
+              title: 'Auditor PIT',
+              value: '${audit.findings.length}',
+              caption:
+                  '${audit.criticalCount} críticas · ${audit.warningCount} avisos',
+              accent: audit.criticalCount > 0
+                  ? Colors.redAccent
+                  : Colors.amberAccent,
+              onTap: () => setState(() => _selectedIndex = 2),
+            ),
+            _executiveKpi(
+              icon: Icons.workspace_premium_outlined,
+              title: 'Modelo activo',
+              value: config.modelVersion,
+              caption: '${config.activeRuleCount} reglas activas',
+              accent: gold,
+              onTap: () => setState(() => _selectedIndex = 9),
+            ),
+            _executiveKpi(
+              icon: Icons.storage_outlined,
+              title: 'Histórico',
+              value: '${_history.length}',
+              caption: 'sorteos disponibles',
+              accent: Colors.lightBlueAccent,
+              onTap: () => setState(() => _selectedIndex = 5),
+            ),
+            _executiveKpi(
+              icon: Icons.emoji_events_outlined,
+              title: 'Ranking actual',
+              value: leader == null ? '—' : leader.pitIndex.toStringAsFixed(1),
+              caption: leader == null
+                  ? 'pendiente de generación'
+                  : 'Índice PIT del líder',
+              accent: Colors.greenAccent,
+              onTap: leader == null ? null : () {},
+            ),
+          ],
+        ),
+        const SizedBox(height: 18),
+        LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            final bool wide = constraints.maxWidth >= 900;
+            final Widget analysis = Card(
+              color: panel,
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    const Row(
+                      children: <Widget>[
+                        Icon(Icons.insights_outlined, color: gold),
+                        SizedBox(width: 9),
+                        Text(
+                          'DIAGNÓSTICO EJECUTIVO',
+                          style: TextStyle(
+                            color: gold,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    _dashboardStatusLine(
+                      icon: Icons.shield_outlined,
+                      label: 'Robustez de pesos',
+                      value:
+                          '${metrics.weightRobustness.toStringAsFixed(1)}/100',
+                    ),
+                    _dashboardStatusLine(
+                      icon: Icons.verified_outlined,
+                      label: 'Evidencia',
+                      value: '${metrics.evidence.toStringAsFixed(1)}/100',
+                    ),
+                    _dashboardStatusLine(
+                      icon: Icons.balance_outlined,
+                      label: 'Balance del Score',
+                      value:
+                          '${metrics.scoreBalance.toStringAsFixed(1)}/100',
+                    ),
+                    _dashboardStatusLine(
+                      icon: Icons.rule_outlined,
+                      label: 'Cobertura',
+                      value: '${metrics.coverage.toStringAsFixed(1)}%',
+                    ),
+                    const Divider(height: 26),
+                    if (audit.findings.isEmpty)
+                      const Text(
+                        'No se detectaron observaciones metodológicas.',
+                        style: TextStyle(color: Colors.greenAccent),
+                      )
+                    else
+                      ...audit.findings.take(3).map(
+                            (PitAuditFinding finding) => Padding(
+                              padding: const EdgeInsets.only(bottom: 9),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Icon(
+                                    finding.severity ==
+                                            PitAuditSeverity.critical
+                                        ? Icons.error_outline
+                                        : finding.severity ==
+                                                PitAuditSeverity.warning
+                                            ? Icons.warning_amber_outlined
+                                            : Icons.info_outline,
+                                    size: 18,
+                                    color: finding.severity ==
+                                            PitAuditSeverity.critical
+                                        ? Colors.redAccent
+                                        : finding.severity ==
+                                                PitAuditSeverity.warning
+                                            ? Colors.amberAccent
+                                            : Colors.lightBlueAccent,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      finding.title,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                    const SizedBox(height: 8),
+                    TextButton.icon(
+                      onPressed: () =>
+                          setState(() => _selectedIndex = 2),
+                      icon: const Icon(Icons.open_in_new),
+                      label: const Text('Abrir Auditor PIT'),
+                    ),
+                  ],
+                ),
               ),
+            );
+
+            final Widget quick = Card(
+              color: panel,
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    const Text(
+                      'ACCESOS RÁPIDOS',
+                      style: TextStyle(
+                        color: gold,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    _quickAction(
+                      icon: Icons.psychology_alt_outlined,
+                      title: 'Consultar ATHENA',
+                      subtitle: 'Analiza el modelo y el ranking',
+                      index: 11,
+                    ),
+                    _quickAction(
+                      icon: Icons.tune_outlined,
+                      title: 'Abrir Simulador PIT',
+                      subtitle: 'Prueba cambios sin riesgo',
+                      index: 3,
+                    ),
+                    _quickAction(
+                      icon: Icons.picture_as_pdf_outlined,
+                      title: 'Generar reporte',
+                      subtitle: 'Vista previa y PDF ejecutivo',
+                      index: 12,
+                    ),
+                    _quickAction(
+                      icon: Icons.compare_arrows_outlined,
+                      title: 'Comparar modelos',
+                      subtitle: 'Revisa versiones y pesos',
+                      index: 10,
+                    ),
+                  ],
+                ),
+              ),
+            );
+
+            if (wide) {
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Expanded(flex: 3, child: analysis),
+                  const SizedBox(width: 16),
+                  Expanded(flex: 2, child: quick),
+                ],
+              );
+            }
+
+            return Column(
+              children: <Widget>[
+                analysis,
+                const SizedBox(height: 16),
+                quick,
+              ],
+            );
+          },
         ),
-        const SizedBox(height: 6),
-        Text(
-          '${config.engineName} v${config.engineVersion} · '
-          '${config.modelName} v${config.modelVersion}',
-        ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 18),
         LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
             final bool wide = constraints.maxWidth >= 850;
@@ -505,52 +881,160 @@ class _HomeScreenState extends State<HomeScreen> {
           color: panel,
           child: Padding(
             padding: const EdgeInsets.all(20),
-            child: Wrap(
-              spacing: 36,
-              runSpacing: 18,
+            child: _ranking.isEmpty
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      const Text(
+                        'RANKING',
+                        style: TextStyle(
+                          color: gold,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(config.disclaimer),
+                    ],
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      const Text(
+                        'ÚLTIMO RANKING',
+                        style: TextStyle(
+                          color: gold,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      _RankingTable(
+                        ranking: _ranking,
+                        onInspect: _showCombinationExplanation,
+                      ),
+                    ],
+                  ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _executiveKpi({
+    required IconData icon,
+    required String title,
+    required String value,
+    required String caption,
+    required Color accent,
+    VoidCallback? onTap,
+  }) {
+    return SizedBox(
+      width: 230,
+      child: Card(
+        color: panel,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(17),
+            child: Row(
               children: <Widget>[
-                _metric(
-                  icon: Icons.storage_outlined,
-                  title: 'Histórico',
-                  value: '${_history.length}',
-                  caption: 'sorteos cargados',
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: accent.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(11),
+                  ),
+                  child: Icon(icon, color: accent),
                 ),
-                _metric(
-                  icon: Icons.rule_outlined,
-                  title: 'Reglas activas',
-                  value: '$activeRules',
-                  caption: 'configurables',
-                ),
-                _metric(
-                  icon: Icons.check_circle_outline,
-                  title: 'Estado',
-                  value: 'LISTO',
-                  caption: config.engineName,
-                ),
-                _metric(
-                  icon: Icons.memory_outlined,
-                  title: 'Modelo',
-                  value: config.engineVersion,
-                  caption: '${config.modelName} v${config.modelVersion}',
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          color: Colors.white60,
+                          fontSize: 12,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        value,
+                        style: TextStyle(
+                          color: accent,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        caption,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 11),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
         ),
-        const SizedBox(height: 18),
-        Card(
-          color: panel,
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: _ranking.isEmpty
-                ? Text(config.disclaimer)
-                : _RankingTable(
-                    ranking: _ranking,
-                    onInspect: _showCombinationExplanation,
-                  ),
+      ),
+    );
+  }
+
+  Widget _dashboardStatusLine({
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 11),
+      child: Row(
+        children: <Widget>[
+          Icon(icon, color: gold, size: 19),
+          const SizedBox(width: 9),
+          Expanded(child: Text(label)),
+          Text(
+            value,
+            style: const TextStyle(
+              color: gold,
+              fontWeight: FontWeight.bold,
+            ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _quickAction({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required int index,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 9),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 10,
+          vertical: 2,
         ),
-      ],
+        tileColor: const Color(0xFF24142C),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        leading: Icon(icon, color: gold),
+        title: Text(
+          title,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text(subtitle),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => setState(() => _selectedIndex = index),
+      ),
     );
   }
 

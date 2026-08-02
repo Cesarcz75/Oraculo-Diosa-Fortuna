@@ -1,0 +1,24 @@
+ORÁCULO DIOSA FORTUNA PROFESSIONAL v5.4.0
+
+NUEVA EXPERIENCIA: DASHBOARD PREMIUM
+
+- Centro Ejecutivo PIT como pantalla principal.
+- Indicador visual de salud general del modelo.
+- KPIs interactivos para Métricas, Auditor, Modelo, Histórico y Ranking.
+- Diagnóstico ejecutivo con robustez, evidencia, balance y cobertura.
+- Resumen de las tres observaciones más importantes del Auditor PIT.
+- Accesos rápidos a ATHENA, Simulador, Reportes y Comparador.
+- Conserva la captura del último sorteo y la generación del ranking.
+- Vista integrada del último ranking.
+- Diseño adaptable para pantallas amplias y reducidas.
+- No se modifica la lógica del Motor Fortuna.
+
+OBJETIVO
+
+Presentar en una sola pantalla el estado completo del Modelo PIT y
+reducir la navegación necesaria para las tareas principales.
+
+ACLARACIÓN
+
+Los indicadores muestran calidad interna y ajuste metodológico.
+No representan probabilidades de ganar.
