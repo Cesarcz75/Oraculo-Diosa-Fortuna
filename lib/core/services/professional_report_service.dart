@@ -342,8 +342,8 @@ class ProfessionalReportService {
 					),
           
                       ),
-                    ),
-                  ],
+
+
                 ),
               );
             },
