@@ -1,4 +1,5 @@
 import 'dart:isolate';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../core/models/model_config.dart';
 import '../../core/models/ranked_combination.dart';
@@ -7,6 +8,7 @@ import '../../core/models/pit_metrics.dart';
 import '../../core/services/history_repository.dart';
 import '../../core/services/model_config_repository.dart';
 import '../../core/services/ranking_worker.dart';
+import '../../core/services/statistical_engine.dart';
 import '../../core/services/pit_audit_engine.dart';
 import '../../core/services/pit_metrics_engine.dart';
 import '../laboratory/laboratory_screen.dart';
@@ -142,10 +144,9 @@ class _HomeScreenState extends State<HomeScreen> {
       final List<int> latest = _readLatest();
 
       _receivePort?.close();
+      _receivePort = null;
       _isolate?.kill(priority: Isolate.immediate);
-
-      final ReceivePort port = ReceivePort();
-      _receivePort = port;
+      _isolate = null;
 
       setState(() {
         _running = true;
@@ -153,6 +154,45 @@ class _HomeScreenState extends State<HomeScreen> {
         _ranking = <RankedCombination>[];
         _status = 'Evaluando las 3,262,623 combinaciones...';
       });
+
+      if (kIsWeb) {
+        // Flutter Web no admite ReceivePort.listen para este flujo.
+        // El motor se ejecuta por bloques y cede el control al navegador
+        // periódicamente para mantener la interfaz receptiva.
+        final StatisticalEngine engine =
+            StatisticalEngine(_history, config);
+
+        final List<RankedCombination> ranking =
+            await engine.rankTopAsync(
+          latest: latest,
+          topN: _topN,
+          onProgress: (int done, int total) {
+            if (!mounted) {
+              return;
+            }
+            setState(() {
+              _progress = done / total;
+              _status =
+                  'Analizando ${(_progress * 100).toStringAsFixed(1)}%';
+            });
+          },
+        );
+
+        if (!mounted) {
+          return;
+        }
+
+        setState(() {
+          _ranking = ranking;
+          _running = false;
+          _progress = 1;
+          _status = 'Análisis terminado con ${config.modelName}.';
+        });
+        return;
+      }
+
+      final ReceivePort port = ReceivePort();
+      _receivePort = port;
 
       port.listen((dynamic rawMessage) {
         if (!mounted || rawMessage is! Map) {
@@ -197,6 +237,7 @@ class _HomeScreenState extends State<HomeScreen> {
             });
           }
           port.close();
+          _receivePort = null;
           return;
         }
 
@@ -206,6 +247,7 @@ class _HomeScreenState extends State<HomeScreen> {
             _status = 'Error: ${message['message']}';
           });
           port.close();
+          _receivePort = null;
         }
       });
 
@@ -220,8 +262,17 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       );
     } on FormatException catch (error) {
+      if (mounted) {
+        setState(() => _running = false);
+      }
       _showMessage(error.message);
     } catch (error) {
+      if (mounted) {
+        setState(() {
+          _running = false;
+          _status = 'No se pudo iniciar el análisis.';
+        });
+      }
       _showMessage('No se pudo iniciar el análisis: $error');
     }
   }

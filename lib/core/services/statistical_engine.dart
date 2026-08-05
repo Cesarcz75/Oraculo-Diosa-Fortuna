@@ -164,25 +164,6 @@ class StatisticalEngine {
     );
   }
 
-  int _descendingInsertIndex(
-    List<RankedCombination> items,
-    double score,
-  ) {
-    int low = 0;
-    int high = items.length;
-
-    while (low < high) {
-      final int middle = low + ((high - low) >> 1);
-      if (items[middle].score >= score) {
-        low = middle + 1;
-      } else {
-        high = middle;
-      }
-    }
-
-    return low;
-  }
-
   List<RankedCombination> rankTop({
     required List<int> latest,
     int topN = 10,
@@ -231,4 +212,57 @@ class StatisticalEngine {
     onProgress?.call(total, total);
     return top;
   }
+
+  Future<List<RankedCombination>> rankTopAsync({
+    required List<int> latest,
+    int topN = 10,
+    void Function(int done, int total)? onProgress,
+    int yieldEvery = 25000,
+  }) async {
+    final List<RankedCombination> top = <RankedCombination>[];
+    const int total = 3262623;
+    int done = 0;
+
+    void consider(RankedCombination item) {
+      if (top.length < topN) {
+        final int insertAt = _descendingInsertIndex(top, item.score);
+        top.insert(insertAt, item);
+        return;
+      }
+
+      if (item.score <= top.last.score) {
+        return;
+      }
+
+      final int insertAt = _descendingInsertIndex(top, item.score);
+      top.insert(insertAt, item);
+      top.removeLast();
+    }
+
+    for (int a = 1; a <= 34; a++) {
+      for (int b = a + 1; b <= 35; b++) {
+        for (int c = b + 1; c <= 36; c++) {
+          for (int d = c + 1; d <= 37; d++) {
+            for (int e = d + 1; e <= 38; e++) {
+              for (int f = e + 1; f <= 39; f++) {
+                consider(
+                  evaluate(<int>[a, b, c, d, e, f], latest),
+                );
+                done++;
+
+                if (done % yieldEvery == 0) {
+                  onProgress?.call(done, total);
+                  await Future<void>.delayed(Duration.zero);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    onProgress?.call(total, total);
+    return top;
+  }
+
 }
