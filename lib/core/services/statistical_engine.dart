@@ -164,6 +164,25 @@ class StatisticalEngine {
     );
   }
 
+  int _descendingInsertIndex(
+    List<RankedCombination> items,
+    double score,
+  ) {
+    int low = 0;
+    int high = items.length;
+
+    while (low < high) {
+      final int middle = low + ((high - low) >> 1);
+      if (items[middle].score >= score) {
+        low = middle + 1;
+      } else {
+        high = middle;
+      }
+    }
+
+    return low;
+  }
+
   List<RankedCombination> rankTop({
     required List<int> latest,
     int topN = 10,
