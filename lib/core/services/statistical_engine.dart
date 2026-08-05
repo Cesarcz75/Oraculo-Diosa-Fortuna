@@ -164,6 +164,25 @@ class StatisticalEngine {
     );
   }
 
+  int _descendingInsertIndex(
+    List<RankedCombination> items,
+    double score,
+  ) {
+    int low = 0;
+    int high = items.length;
+
+    while (low < high) {
+      final int middle = low + ((high - low) >> 1);
+      if (items[middle].score >= score) {
+        low = middle + 1;
+      } else {
+        high = middle;
+      }
+    }
+
+    return low;
+  }
+
   List<RankedCombination> rankTop({
     required List<int> latest,
     int topN = 10,
@@ -174,14 +193,19 @@ class StatisticalEngine {
     int done = 0;
 
     void consider(RankedCombination item) {
-      top.add(item);
-      top.sort(
-        (RankedCombination a, RankedCombination b) =>
-            b.score.compareTo(a.score),
-      );
-      if (top.length > topN) {
-        top.removeLast();
+      if (top.length < topN) {
+        final int insertAt = _descendingInsertIndex(top, item.score);
+        top.insert(insertAt, item);
+        return;
       }
+
+      if (item.score <= top.last.score) {
+        return;
+      }
+
+      final int insertAt = _descendingInsertIndex(top, item.score);
+      top.insert(insertAt, item);
+      top.removeLast();
     }
 
     for (int a = 1; a <= 34; a++) {
