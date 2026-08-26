@@ -43,6 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
     6,
     (_) => TextEditingController(),
   );
+  final ScrollController _sidebarScrollController = ScrollController();
 
   List<List<int>> _history = <List<int>>[];
   List<RankedCombination> _ranking = <RankedCombination>[];
@@ -70,6 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
     for (final TextEditingController controller in _controllers) {
       controller.dispose();
     }
+    _sidebarScrollController.dispose();
     super.dispose();
   }
 
@@ -427,89 +429,113 @@ class _HomeScreenState extends State<HomeScreen> {
             child: _Brand(),
           ),
           Expanded(
-            child: NavigationRail(
-              extended: extended,
-              selectedIndex: _selectedIndex,
-              onDestinationSelected: (int index) {
-                setState(() => _selectedIndex = index);
+            child: LayoutBuilder(
+              builder: (
+                BuildContext context,
+                BoxConstraints constraints,
+              ) {
+                const double minimumRailHeight = 860;
+                final double railHeight =
+                    constraints.maxHeight > minimumRailHeight
+                        ? constraints.maxHeight
+                        : minimumRailHeight;
+
+                return Scrollbar(
+                  controller: _sidebarScrollController,
+                  thumbVisibility: true,
+                  child: SingleChildScrollView(
+                    controller: _sidebarScrollController,
+                    child: SizedBox(
+                      height: railHeight,
+                      child: NavigationRail(
+                        extended: extended,
+                        selectedIndex: _selectedIndex,
+                        onDestinationSelected: (int index) {
+                          setState(() => _selectedIndex = index);
+                        },
+                        destinations:
+                            const <NavigationRailDestination>[
+                          NavigationRailDestination(
+                            icon: Icon(Icons.dashboard_outlined),
+                            selectedIcon: Icon(Icons.dashboard),
+                            label: Text('Dashboard'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.monitor_heart_outlined),
+                            selectedIcon: Icon(Icons.monitor_heart),
+                            label: Text('Métricas PIT'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.fact_check_outlined),
+                            selectedIcon: Icon(Icons.fact_check),
+                            label: Text('Auditor PIT'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.tune_outlined),
+                            selectedIcon: Icon(Icons.tune),
+                            label: Text('Simulador PIT'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.bar_chart_outlined),
+                            selectedIcon: Icon(Icons.bar_chart),
+                            label: Text('Estadísticas'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.history_outlined),
+                            selectedIcon: Icon(Icons.history),
+                            label: Text('Histórico'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.science_outlined),
+                            selectedIcon: Icon(Icons.science),
+                            label: Text('Laboratorio'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.analytics_outlined),
+                            selectedIcon: Icon(Icons.analytics),
+                            label: Text('Backtesting'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.rule_folder_outlined),
+                            selectedIcon: Icon(Icons.rule_folder),
+                            label: Text('Centro PIT'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.tune_outlined),
+                            selectedIcon: Icon(Icons.tune),
+                            label: Text('Configuración'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.compare_arrows_outlined),
+                            selectedIcon: Icon(Icons.compare_arrows),
+                            label: Text('Comparador'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.psychology_alt_outlined),
+                            selectedIcon: Icon(Icons.psychology_alt),
+                            label: Text('ATHENA'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.picture_as_pdf_outlined),
+                            selectedIcon: Icon(Icons.picture_as_pdf),
+                            label: Text('Reportes'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.help_outline),
+                            selectedIcon: Icon(Icons.help),
+                            label: Text('Ayuda'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.info_outline),
+                            selectedIcon: Icon(Icons.info),
+                            label: Text('Acerca de'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
               },
-              destinations: const <NavigationRailDestination>[
-                NavigationRailDestination(
-                  icon: Icon(Icons.dashboard_outlined),
-                  selectedIcon: Icon(Icons.dashboard),
-                  label: Text('Dashboard'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.monitor_heart_outlined),
-                  selectedIcon: Icon(Icons.monitor_heart),
-                  label: Text('Métricas PIT'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.fact_check_outlined),
-                  selectedIcon: Icon(Icons.fact_check),
-                  label: Text('Auditor PIT'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.tune_outlined),
-                  selectedIcon: Icon(Icons.tune),
-                  label: Text('Simulador PIT'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.bar_chart_outlined),
-                  selectedIcon: Icon(Icons.bar_chart),
-                  label: Text('Estadísticas'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.history_outlined),
-                  selectedIcon: Icon(Icons.history),
-                  label: Text('Histórico'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.science_outlined),
-                  selectedIcon: Icon(Icons.science),
-                  label: Text('Laboratorio'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.analytics_outlined),
-                  selectedIcon: Icon(Icons.analytics),
-                  label: Text('Backtesting'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.rule_folder_outlined),
-                  selectedIcon: Icon(Icons.rule_folder),
-                  label: Text('Centro PIT'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.tune_outlined),
-                  selectedIcon: Icon(Icons.tune),
-                  label: Text('Configuración'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.compare_arrows_outlined),
-                  selectedIcon: Icon(Icons.compare_arrows),
-                  label: Text('Comparador'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.psychology_alt_outlined),
-                  selectedIcon: Icon(Icons.psychology_alt),
-                  label: Text('ATHENA'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.picture_as_pdf_outlined),
-                  selectedIcon: Icon(Icons.picture_as_pdf),
-                  label: Text('Reportes'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.help_outline),
-                  selectedIcon: Icon(Icons.help),
-                  label: Text('Ayuda'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.info_outline),
-                  selectedIcon: Icon(Icons.info),
-                  label: Text('Acerca de'),
-                ),
-              ],
             ),
           ),
           Padding(
