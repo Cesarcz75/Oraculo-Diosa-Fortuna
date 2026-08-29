@@ -184,11 +184,19 @@ class _HomeScreenState extends State<HomeScreen> {
           return;
         }
 
+        final bool saved = await _persistLatestDraw(latest);
+
+        if (!mounted) {
+          return;
+        }
+
         setState(() {
           _ranking = ranking;
           _running = false;
           _progress = 1;
-          _status = 'Análisis terminado con ${config.modelName}.';
+          _status = saved
+              ? 'Análisis terminado con ${config.modelName}. Sorteo guardado.'
+              : 'Análisis terminado con ${config.modelName}.';
         });
         return;
       }
@@ -196,7 +204,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final ReceivePort port = ReceivePort();
       _receivePort = port;
 
-      port.listen((dynamic rawMessage) {
+      port.listen((dynamic rawMessage) async {
         if (!mounted || rawMessage is! Map) {
           return;
         }
@@ -231,11 +239,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 )
                 .toList(growable: false);
 
+            final bool saved = await _persistLatestDraw(latest);
+
+            if (!mounted) {
+              return;
+            }
+
             setState(() {
               _ranking = ranking;
               _running = false;
               _progress = 1;
-              _status = 'Análisis terminado con ${config.modelName}.';
+              _status = saved
+                  ? 'Análisis terminado con ${config.modelName}. Sorteo guardado.'
+                  : 'Análisis terminado con ${config.modelName}.';
             });
           }
           port.close();
@@ -277,6 +293,24 @@ class _HomeScreenState extends State<HomeScreen> {
       }
       _showMessage('No se pudo iniciar el análisis: $error');
     }
+  }
+
+
+  Future<bool> _persistLatestDraw(List<int> latest) async {
+    final bool added = await _repository.addDraw(latest);
+    if (!added) {
+      return false;
+    }
+
+    final List<List<int>> updatedHistory = await _repository.load();
+    if (!mounted) {
+      return true;
+    }
+
+    setState(() {
+      _history = updatedHistory;
+    });
+    return true;
   }
 
   void _showMessage(String message) {
