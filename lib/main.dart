@@ -9,7 +9,7 @@ Future<void> main() async {
       'SUPABASE_URL',
       defaultValue: 'https://hunpqzixjoughrulizvl.supabase.co',
     ),
-    anonKey: const String.fromEnvironment(
+    publishableKey: const String.fromEnvironment(
       'SUPABASE_PUBLISHABLE_KEY',
       defaultValue: 'sb_publishable_a6zV0-OKYfGItuNX4vlq3Q_gSSnX0m-',
     ),
