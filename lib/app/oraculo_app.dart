@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../features/home/home_screen.dart';
+import '../features/access/access_gate.dart';
 
 class OraculoApp extends StatelessWidget {
   const OraculoApp({super.key});
@@ -23,7 +23,7 @@ class OraculoApp extends StatelessWidget {
           margin: EdgeInsets.zero,
         ),
       ),
-      home: const HomeScreen(),
+      home: const AccessGate(),
     );
   }
 }

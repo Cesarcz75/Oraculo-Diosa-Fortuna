@@ -4,7 +4,14 @@ Plataforma Flutter de investigación estadística para Melate Retro, desarrollad
 
 ## Versión estable
 
-**1.0.0+100**
+**1.1.0+110**
+
+## Acceso por suscripción
+
+La versión 1.1.0 usa las mismas cuentas de Academia PIT mediante Supabase.
+Antes de mostrar el software valida que el usuario esté activo, inscrito en
+Oráculo Diosa Fortuna y dentro de su periodo de acceso. La Academia debe tener
+instalado `supabase/diosa_subscriptions_v3_6.sql` de la versión 3.6.0.
 
 ## Calidad
 

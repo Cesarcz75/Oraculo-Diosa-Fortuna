@@ -1,0 +1,8 @@
+ORÁCULO DIOSA FORTUNA PROFESSIONAL v1.1.0
+
+- Inicio de sesión con las mismas credenciales de Academia PIT.
+- Validación de cuenta activa, inscripción y vigencia de suscripción.
+- Bloqueo del software cuando la mensualidad está vencida.
+- Comprobación periódica de acceso durante la sesión.
+- Indicador visible de fecha de vencimiento y cierre de sesión.
+
