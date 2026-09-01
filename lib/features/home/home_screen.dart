@@ -1761,7 +1761,7 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(height: 8),
         Center(
           child: Text(
-            'Software v1.2.2 · ${config.engineName} v${config.engineVersion}',
+            'Software v1.2.3 · ${config.engineName} v${config.engineVersion}',
             style: const TextStyle(color: Colors.white60),
           ),
         ),

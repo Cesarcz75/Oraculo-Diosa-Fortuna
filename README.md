@@ -4,7 +4,7 @@ Plataforma Flutter de investigación estadística para Melate Retro, desarrollad
 
 ## Versión estable
 
-**1.2.2+122**
+**1.2.3+123**
 
 ## Acceso por suscripción
 

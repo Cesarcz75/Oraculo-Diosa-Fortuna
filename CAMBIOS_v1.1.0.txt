@@ -29,3 +29,9 @@ VERSIÓN 1.2.2
 - Los alumnos conservan acceso de sólo lectura al histórico.
 - La validación periódica de suscripción se realiza en segundo plano y ya no
   borra las combinaciones generadas ni reconstruye el Dashboard.
+
+VERSIÓN 1.2.3
+
+- Cerrar sesión limpia inmediatamente el correo y la contraseña del formulario.
+- Se cancela el contexto de autocompletado al salir para evitar reutilizar las
+  credenciales que permanecían escritas en pantalla.

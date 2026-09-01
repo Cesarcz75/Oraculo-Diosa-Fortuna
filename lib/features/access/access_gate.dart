@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../home/home_screen.dart';
@@ -158,7 +159,18 @@ class _AccessGateState extends State<AccessGate> {
   }
 
   Future<void> _signOut() async {
+    _accessTimer?.cancel();
+    FocusManager.instance.primaryFocus?.unfocus();
+    TextInput.finishAutofillContext(shouldSave: false);
+    _email.clear();
+    _password.clear();
     await _client.auth.signOut();
+    if (mounted) {
+      setState(() {
+        _message = null;
+        _signingIn = false;
+      });
+    }
   }
 
   @override
