@@ -48,6 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _sidebarScrollController = ScrollController();
 
   List<List<int>> _history = <List<int>>[];
+  List<OfficialRetroDraw> _officialDraws = <OfficialRetroDraw>[];
   List<RankedCombination> _ranking = <RankedCombination>[];
   ModelConfig? _config;
   List<ModelConfig> _modelHistory = <ModelConfig>[];
@@ -85,15 +86,18 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final List<Object> loaded = await Future.wait<Object>(<Future<Object>>[
         _repository.load(),
+        _repository.loadOfficialDraws(),
         _configRepository.load(),
         _configRepository.loadHistory(),
         _repository.isCurrentUserAdmin(),
       ]);
       final List<List<int>> history = loaded[0] as List<List<int>>;
-      final ModelConfig config = loaded[1] as ModelConfig;
+      final List<OfficialRetroDraw> officialDraws =
+          loaded[1] as List<OfficialRetroDraw>;
+      final ModelConfig config = loaded[2] as ModelConfig;
       final List<ModelConfig> modelHistory =
-          loaded[2] as List<ModelConfig>;
-      final bool isAdmin = loaded[3] as bool;
+          loaded[3] as List<ModelConfig>;
+      final bool isAdmin = loaded[4] as bool;
       final List<int> last = history.last;
 
       for (int index = 0; index < 6; index++) {
@@ -109,6 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       setState(() {
         _history = history;
+        _officialDraws = officialDraws;
         _config = config;
         _modelHistory = modelHistory;
         _isAdmin = isAdmin;
@@ -313,10 +318,18 @@ class _HomeScreenState extends State<HomeScreen> {
         drawDate: date,
         values: draw,
       );
-      final List<List<int>> updatedHistory = await _repository.load();
+      final List<Object> updated = await Future.wait<Object>(<Future<Object>>[
+        _repository.load(),
+        _repository.loadOfficialDraws(),
+      ]);
+      final List<List<int>> updatedHistory =
+          updated[0] as List<List<int>>;
+      final List<OfficialRetroDraw> updatedOfficialDraws =
+          updated[1] as List<OfficialRetroDraw>;
       if (!mounted) return;
       setState(() {
         _history = updatedHistory;
+        _officialDraws = updatedOfficialDraws;
         _savingOfficialDraw = false;
         _status = 'Concurso $contest guardado en el historial oficial.';
       });
@@ -1496,7 +1509,44 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHistory() {
-    final List<List<int>> recent = _history.reversed.take(50).toList();
+    final int baseCount = _history.length - _officialDraws.length;
+    final List<DataRow> rows = <DataRow>[];
+
+    for (final OfficialRetroDraw draw in _officialDraws.reversed) {
+      if (rows.length >= 50) break;
+      rows.add(
+        DataRow(
+          cells: <DataCell>[
+            DataCell(Text('${draw.contestNumber}')),
+            DataCell(Text(draw.numbers.join(' - '))),
+            DataCell(Text(draw.drawDate.toIso8601String().split('T').first)),
+            DataCell(
+              Text('${draw.numbers.reduce((int a, int b) => a + b)}'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final List<List<int>> baseRecent =
+        _history.take(baseCount).toList().reversed.toList();
+    for (int index = 0;
+        index < baseRecent.length && rows.length < 50;
+        index++) {
+      final List<int> draw = baseRecent[index];
+      rows.add(
+        DataRow(
+          cells: <DataCell>[
+            DataCell(
+              Text('${HistoryRepository.baseLastContestNumber - index}'),
+            ),
+            DataCell(Text(draw.join(' - '))),
+            const DataCell(Text('—')),
+            DataCell(Text('${draw.reduce((int a, int b) => a + b)}')),
+          ],
+        ),
+      );
+    }
 
     return ListView(
       padding: const EdgeInsets.all(24),
@@ -1509,23 +1559,12 @@ class _HomeScreenState extends State<HomeScreen> {
             scrollDirection: Axis.horizontal,
             child: DataTable(
               columns: const <DataColumn>[
-                DataColumn(label: Text('#')),
+                DataColumn(label: Text('Concurso')),
                 DataColumn(label: Text('Combinación')),
+                DataColumn(label: Text('Fecha')),
                 DataColumn(label: Text('Suma')),
               ],
-              rows: List<DataRow>.generate(
-                recent.length,
-                (int index) {
-                  final List<int> draw = recent[index];
-                  return DataRow(
-                    cells: <DataCell>[
-                      DataCell(Text('${_history.length - index}')),
-                      DataCell(Text(draw.join(' - '))),
-                      DataCell(Text('${draw.reduce((int a, int b) => a + b)}')),
-                    ],
-                  );
-                },
-              ),
+              rows: rows,
             ),
           ),
         ),

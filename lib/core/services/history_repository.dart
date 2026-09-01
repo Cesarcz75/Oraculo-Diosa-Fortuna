@@ -2,35 +2,71 @@ import 'package:csv/csv.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+class OfficialRetroDraw {
+  const OfficialRetroDraw({
+    required this.contestNumber,
+    required this.drawDate,
+    required this.numbers,
+  });
+
+  final int contestNumber;
+  final DateTime drawDate;
+  final List<int> numbers;
+}
+
 class HistoryRepository {
   const HistoryRepository();
+
+  // El CSV incluido contiene los concursos históricos hasta el 1661.
+  // Sus primeras cuatro ediciones no están en el archivo, por lo que el
+  // número de concurso no coincide con la cantidad física de filas.
+  static const int baseLastContestNumber = 1661;
 
   SupabaseClient get _client => Supabase.instance.client;
 
   Future<List<List<int>>> load() async {
     final List<List<int>> history = await _loadBaseHistory();
-    final List<dynamic> remote = await _client
-        .from('retro_draws')
-        .select('n1,n2,n3,n4,n5,n6')
-        .order('contest_number');
+    final List<OfficialRetroDraw> officialDraws = await loadOfficialDraws();
 
-    for (final dynamic raw in remote) {
-      final Map<String, dynamic> row = Map<String, dynamic>.from(raw as Map);
-      final List<int> draw = <int>[
-        row['n1'] as int,
-        row['n2'] as int,
-        row['n3'] as int,
-        row['n4'] as int,
-        row['n5'] as int,
-        row['n6'] as int,
-      ];
-      if (_isValidDraw(draw)) history.add(draw);
+    for (final OfficialRetroDraw draw in officialDraws) {
+      if (_isValidDraw(draw.numbers)) history.add(draw.numbers);
     }
 
     if (history.length < 20) {
       throw StateError('El histórico no contiene suficientes sorteos.');
     }
     return history;
+  }
+
+  Future<List<OfficialRetroDraw>> loadOfficialDraws() async {
+    final List<dynamic> remote = await _client
+        .from('retro_draws')
+        .select('contest_number,draw_date,n1,n2,n3,n4,n5,n6')
+        .gt('contest_number', baseLastContestNumber)
+        .order('contest_number', ascending: true);
+
+    final List<OfficialRetroDraw> draws = <OfficialRetroDraw>[];
+    for (final dynamic raw in remote) {
+      final Map<String, dynamic> row = Map<String, dynamic>.from(raw as Map);
+      final List<int> numbers = <int>[
+        (row['n1'] as num).toInt(),
+        (row['n2'] as num).toInt(),
+        (row['n3'] as num).toInt(),
+        (row['n4'] as num).toInt(),
+        (row['n5'] as num).toInt(),
+        (row['n6'] as num).toInt(),
+      ];
+      if (_isValidDraw(numbers)) {
+        draws.add(
+          OfficialRetroDraw(
+            contestNumber: (row['contest_number'] as num).toInt(),
+            drawDate: DateTime.parse(row['draw_date'] as String),
+            numbers: numbers,
+          ),
+        );
+      }
+    }
+    return draws;
   }
 
   Future<bool> isCurrentUserAdmin() async {

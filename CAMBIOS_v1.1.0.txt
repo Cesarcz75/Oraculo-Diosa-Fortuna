@@ -13,3 +13,10 @@ VERSIÓN 1.2.0
 - Concurso y fecha únicos para impedir duplicar el mismo sorteo.
 - Los alumnos consultan el histórico en modo de sólo lectura.
 - Generar combinaciones ya no agrega registros al historial.
+
+VERSIÓN 1.2.1
+
+- Histórico muestra el número real del concurso registrado en Supabase.
+- Histórico muestra la fecha de cada sorteo oficial centralizado.
+- Los sorteos remotos se cargan explícitamente en orden ascendente.
+- Se corrige la numeración incorrecta cuando existen saltos entre concursos.
