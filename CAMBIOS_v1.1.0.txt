@@ -20,3 +20,12 @@ VERSIÓN 1.2.1
 - Histórico muestra la fecha de cada sorteo oficial centralizado.
 - Los sorteos remotos se cargan explícitamente en orden ascendente.
 - Se corrige la numeración incorrecta cuando existen saltos entre concursos.
+
+VERSIÓN 1.2.2
+
+- Los administradores pueden corregir concursos oficiales desde Histórico.
+- Se pueden editar número de concurso, fecha y combinación ganadora.
+- Cada corrección queda registrada en una bitácora administrativa.
+- Los alumnos conservan acceso de sólo lectura al histórico.
+- La validación periódica de suscripción se realiza en segundo plano y ya no
+  borra las combinaciones generadas ni reconstruye el Dashboard.

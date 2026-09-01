@@ -104,6 +104,33 @@ class HistoryRepository {
     );
   }
 
+  Future<void> updateOfficialDraw({
+    required int originalContestNumber,
+    required int contestNumber,
+    required DateTime drawDate,
+    required List<int> values,
+  }) async {
+    final List<int> draw = List<int>.from(values)..sort();
+    if (originalContestNumber <= baseLastContestNumber ||
+        contestNumber <= baseLastContestNumber) {
+      throw ArgumentError('Número de concurso inválido.');
+    }
+    if (!_isValidDraw(draw)) {
+      throw ArgumentError(
+        'El sorteo debe contener seis números distintos entre 1 y 39.',
+      );
+    }
+    await _client.rpc(
+      'update_retro_official_draw',
+      params: <String, dynamic>{
+        'p_original_contest_number': originalContestNumber,
+        'p_new_contest_number': contestNumber,
+        'p_draw_date': drawDate.toIso8601String().split('T').first,
+        'p_numbers': draw,
+      },
+    );
+  }
+
   Future<List<List<int>>> _loadBaseHistory() async {
     final String raw = await rootBundle.loadString(
       'assets/data/historico_retro.csv',

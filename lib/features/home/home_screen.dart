@@ -30,6 +30,18 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
+class _OfficialDrawEditInput {
+  const _OfficialDrawEditInput({
+    required this.contestNumber,
+    required this.drawDate,
+    required this.numbers,
+  });
+
+  final int contestNumber;
+  final DateTime drawDate;
+  final List<int> numbers;
+}
+
 class _HomeScreenState extends State<HomeScreen> {
   static const Color gold = Color(0xFFE8B85A);
   static const Color purple = Color(0xFF5B1FA3);
@@ -344,6 +356,145 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() => _savingOfficialDraw = false);
         _showMessage('No se pudo registrar el sorteo: $error');
       }
+    }
+  }
+
+  Future<void> _editOfficialDraw(OfficialRetroDraw draw) async {
+    if (!_isAdmin || _savingOfficialDraw) return;
+    final TextEditingController contestController = TextEditingController(
+      text: '${draw.contestNumber}',
+    );
+    final TextEditingController dateController = TextEditingController(
+      text: draw.drawDate.toIso8601String().split('T').first,
+    );
+    final List<TextEditingController> numberControllers = draw.numbers
+        .map((int value) => TextEditingController(text: '$value'))
+        .toList();
+
+    final _OfficialDrawEditInput? input =
+        await showDialog<_OfficialDrawEditInput>(
+      context: context,
+      builder: (BuildContext dialogContext) => AlertDialog(
+        title: Text('Corregir concurso ${draw.contestNumber}'),
+        content: SingleChildScrollView(
+          child: SizedBox(
+            width: 480,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                TextField(
+                  controller: contestController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Número de concurso',
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: dateController,
+                  decoration: const InputDecoration(
+                    labelText: 'Fecha (AAAA-MM-DD)',
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text('Combinación ganadora'),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: List<Widget>.generate(
+                    numberControllers.length,
+                    (int index) => SizedBox(
+                      width: 62,
+                      child: TextField(
+                        controller: numberControllers[index],
+                        keyboardType: TextInputType.number,
+                        textAlign: TextAlign.center,
+                        decoration: InputDecoration(labelText: 'N${index + 1}'),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                const Text(
+                  'El cambio quedará registrado en la bitácora administrativa.',
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final int? contest =
+                  int.tryParse(contestController.text.trim());
+              final DateTime? date =
+                  DateTime.tryParse(dateController.text.trim());
+              final List<int?> parsed = numberControllers
+                  .map((TextEditingController controller) =>
+                      int.tryParse(controller.text.trim()))
+                  .toList();
+              if (contest == null ||
+                  date == null ||
+                  parsed.any((int? value) => value == null)) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Revisa el concurso, la fecha y los números.'),
+                  ),
+                );
+                return;
+              }
+              Navigator.pop(
+                dialogContext,
+                _OfficialDrawEditInput(
+                  contestNumber: contest,
+                  drawDate: date,
+                  numbers: parsed.cast<int>(),
+                ),
+              );
+            },
+            child: const Text('Guardar corrección'),
+          ),
+        ],
+      ),
+    );
+
+    contestController.dispose();
+    dateController.dispose();
+    for (final TextEditingController controller in numberControllers) {
+      controller.dispose();
+    }
+    if (input == null || !mounted) return;
+
+    try {
+      setState(() => _savingOfficialDraw = true);
+      await _repository.updateOfficialDraw(
+        originalContestNumber: draw.contestNumber,
+        contestNumber: input.contestNumber,
+        drawDate: input.drawDate,
+        values: input.numbers,
+      );
+      final List<Object> updated = await Future.wait<Object>(<Future<Object>>[
+        _repository.load(),
+        _repository.loadOfficialDraws(),
+      ]);
+      if (!mounted) return;
+      setState(() {
+        _history = updated[0] as List<List<int>>;
+        _officialDraws = updated[1] as List<OfficialRetroDraw>;
+        _savingOfficialDraw = false;
+        _status = 'Concurso ${input.contestNumber} corregido correctamente.';
+      });
+      _showMessage('La corrección quedó guardada para todos los usuarios.');
+    } catch (error) {
+      if (!mounted) return;
+      setState(() => _savingOfficialDraw = false);
+      _showMessage('No se pudo corregir el sorteo: $error');
     }
   }
 
@@ -1523,6 +1674,16 @@ class _HomeScreenState extends State<HomeScreen> {
             DataCell(
               Text('${draw.numbers.reduce((int a, int b) => a + b)}'),
             ),
+            if (_isAdmin)
+              DataCell(
+                OutlinedButton.icon(
+                  onPressed: _savingOfficialDraw
+                      ? null
+                      : () => _editOfficialDraw(draw),
+                  icon: const Icon(Icons.edit, size: 16),
+                  label: const Text('Editar'),
+                ),
+              ),
           ],
         ),
       );
@@ -1543,6 +1704,7 @@ class _HomeScreenState extends State<HomeScreen> {
             DataCell(Text(draw.join(' - '))),
             const DataCell(Text('—')),
             DataCell(Text('${draw.reduce((int a, int b) => a + b)}')),
+            if (_isAdmin) const DataCell(Text('Histórico base')),
           ],
         ),
       );
@@ -1558,11 +1720,12 @@ class _HomeScreenState extends State<HomeScreen> {
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: DataTable(
-              columns: const <DataColumn>[
-                DataColumn(label: Text('Concurso')),
-                DataColumn(label: Text('Combinación')),
-                DataColumn(label: Text('Fecha')),
-                DataColumn(label: Text('Suma')),
+              columns: <DataColumn>[
+                const DataColumn(label: Text('Concurso')),
+                const DataColumn(label: Text('Combinación')),
+                const DataColumn(label: Text('Fecha')),
+                const DataColumn(label: Text('Suma')),
+                if (_isAdmin) const DataColumn(label: Text('Acciones')),
               ],
               rows: rows,
             ),
@@ -1598,7 +1761,7 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(height: 8),
         Center(
           child: Text(
-            'Software v1.0.0 · ${config.engineName} v${config.engineVersion}',
+            'Software v1.2.2 · ${config.engineName} v${config.engineVersion}',
             style: const TextStyle(color: Colors.white60),
           ),
         ),

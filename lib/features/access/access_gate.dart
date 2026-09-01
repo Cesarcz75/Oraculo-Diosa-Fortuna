@@ -57,7 +57,7 @@ class _AccessGateState extends State<AccessGate> {
     super.dispose();
   }
 
-  Future<void> _checkAccess() async {
+  Future<void> _checkAccess({bool showLoading = true}) async {
     final Session? session = _client.auth.currentSession;
     if (session == null) {
       if (mounted) {
@@ -69,7 +69,7 @@ class _AccessGateState extends State<AccessGate> {
       return;
     }
 
-    if (mounted) {
+    if (mounted && showLoading) {
       setState(() {
         _loading = true;
         _message = null;
@@ -103,17 +103,19 @@ class _AccessGateState extends State<AccessGate> {
       if (allowed) {
         _accessTimer = Timer.periodic(
           const Duration(minutes: 15),
-          (_) => _checkAccess(),
+          (_) => _checkAccess(showLoading: false),
         );
       }
     } catch (_) {
       if (mounted) {
-        setState(() {
-          _allowed = false;
-          _loading = false;
-          _message =
-              'No fue posible validar tu suscripción. Intenta nuevamente.';
-        });
+        if (showLoading || !_allowed) {
+          setState(() {
+            _allowed = false;
+            _loading = false;
+            _message =
+                'No fue posible validar tu suscripción. Intenta nuevamente.';
+          });
+        }
       }
     }
   }
