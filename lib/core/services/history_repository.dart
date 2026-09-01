@@ -1,127 +1,91 @@
 import 'package:csv/csv.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HistoryRepository {
   const HistoryRepository();
 
-  static const String _savedDrawsKey = 'historico_retro_saved_draws_v1';
+  SupabaseClient get _client => Supabase.instance.client;
 
   Future<List<List<int>>> load() async {
-    final String raw = await rootBundle.loadString(
-      'assets/data/historico_retro.csv',
-    );
+    final List<List<int>> history = await _loadBaseHistory();
+    final List<dynamic> remote = await _client
+        .from('retro_draws')
+        .select('n1,n2,n3,n4,n5,n6')
+        .order('contest_number');
 
-    final List<List<dynamic>> rows = const CsvToListConverter(
-      shouldParseNumbers: false,
-      eol: '\n',
-    ).convert(raw);
-
-    final List<List<int>> history = <List<int>>[];
-
-    for (int index = 1; index < rows.length; index++) {
-      final List<dynamic> row = rows[index];
-      if (row.length < 6) {
-        continue;
-      }
-
-      final List<int> draw = row
-          .take(6)
-          .map((dynamic value) => int.parse(value.toString().trim()))
-          .toList()
-        ..sort();
-
-      // IMPORTANTE: NO eliminar combinaciones repetidas del histórico.
-      // En un sorteo real una combinación puede volver a ocurrir años después.
-      if (_isValidDraw(draw)) {
-        history.add(draw);
-      }
-    }
-
-    final SharedPreferences preferences =
-        await SharedPreferences.getInstance();
-    final List<String> saved =
-        preferences.getStringList(_savedDrawsKey) ?? <String>[];
-
-    for (final String encoded in saved) {
-      final List<int>? draw = _decodeDraw(encoded);
-      if (draw != null) {
-        history.add(draw);
-      }
+    for (final dynamic raw in remote) {
+      final Map<String, dynamic> row = Map<String, dynamic>.from(raw as Map);
+      final List<int> draw = <int>[
+        row['n1'] as int,
+        row['n2'] as int,
+        row['n3'] as int,
+        row['n4'] as int,
+        row['n5'] as int,
+        row['n6'] as int,
+      ];
+      if (_isValidDraw(draw)) history.add(draw);
     }
 
     if (history.length < 20) {
       throw StateError('El histórico no contiene suficientes sorteos.');
     }
-
     return history;
   }
 
-  Future<bool> addDraw(List<int> values) async {
-    final List<int> draw = List<int>.from(values)..sort();
+  Future<bool> isCurrentUserAdmin() async {
+    final String? userId = _client.auth.currentUser?.id;
+    if (userId == null) return false;
+    final Map<String, dynamic>? profile = await _client
+        .from('profiles')
+        .select('role,active')
+        .eq('id', userId)
+        .maybeSingle();
+    return profile?['role'] == 'admin' && profile?['active'] == true;
+  }
 
+  Future<void> addOfficialDraw({
+    required int contestNumber,
+    required DateTime drawDate,
+    required List<int> values,
+  }) async {
+    final List<int> draw = List<int>.from(values)..sort();
+    if (contestNumber <= 0) {
+      throw ArgumentError('El número de concurso debe ser mayor que cero.');
+    }
     if (!_isValidDraw(draw)) {
       throw ArgumentError(
         'El sorteo debe contener seis números distintos entre 1 y 39.',
       );
     }
-
-    final SharedPreferences preferences =
-        await SharedPreferences.getInstance();
-    final List<String> saved = List<String>.from(
-      preferences.getStringList(_savedDrawsKey) ?? <String>[],
+    await _client.rpc(
+      'add_retro_official_draw',
+      params: <String, dynamic>{
+        'p_contest_number': contestNumber,
+        'p_draw_date': drawDate.toIso8601String().split('T').first,
+        'p_numbers': draw,
+      },
     );
-
-    // Evita guardar dos veces seguidas el mismo resultado por volver a
-    // pulsar GENERAR con los mismos números, sin borrar repeticiones
-    // históricas legítimas.
-    if (saved.isNotEmpty) {
-      final List<int>? lastSaved = _decodeDraw(saved.last);
-      if (lastSaved != null && _sameDraw(lastSaved, draw)) {
-        return false;
-      }
-    }
-
-    // Si aún no hay sorteos locales guardados, evita duplicar el último
-    // sorteo que ya viene incluido en el CSV base.
-    if (saved.isEmpty) {
-      final List<List<int>> baseHistory = await _loadBaseHistory();
-      if (baseHistory.isNotEmpty && _sameDraw(baseHistory.last, draw)) {
-        return false;
-      }
-    }
-
-    saved.add(draw.join(','));
-    await preferences.setStringList(_savedDrawsKey, saved);
-    return true;
   }
 
   Future<List<List<int>>> _loadBaseHistory() async {
     final String raw = await rootBundle.loadString(
       'assets/data/historico_retro.csv',
     );
-
     final List<List<dynamic>> rows = const CsvToListConverter(
       shouldParseNumbers: false,
       eol: '\n',
     ).convert(raw);
-
     final List<List<int>> history = <List<int>>[];
     for (int index = 1; index < rows.length; index++) {
       final List<dynamic> row = rows[index];
-      if (row.length < 6) {
-        continue;
-      }
-
+      if (row.length < 6) continue;
       final List<int> draw = row
           .take(6)
           .map((dynamic value) => int.parse(value.toString().trim()))
           .toList()
         ..sort();
-
-      if (_isValidDraw(draw)) {
-        history.add(draw);
-      }
+      if (_isValidDraw(draw)) history.add(draw);
     }
     return history;
   }
@@ -130,31 +94,5 @@ class HistoryRepository {
     return draw.length == 6 &&
         draw.toSet().length == 6 &&
         draw.every((int value) => value >= 1 && value <= 39);
-  }
-
-  bool _sameDraw(List<int> a, List<int> b) {
-    if (a.length != b.length) {
-      return false;
-    }
-    for (int index = 0; index < a.length; index++) {
-      if (a[index] != b[index]) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  List<int>? _decodeDraw(String encoded) {
-    try {
-      final List<int> draw = encoded
-          .split(',')
-          .map((String value) => int.parse(value.trim()))
-          .toList()
-        ..sort();
-
-      return _isValidDraw(draw) ? draw : null;
-    } catch (_) {
-      return null;
-    }
   }
 }

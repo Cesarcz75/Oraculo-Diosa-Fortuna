@@ -6,3 +6,10 @@ ORÁCULO DIOSA FORTUNA PROFESSIONAL v1.1.0
 - Comprobación periódica de acceso durante la sesión.
 - Indicador visible de fecha de vencimiento y cierre de sesión.
 
+VERSIÓN 1.2.0
+
+- Histórico oficial centralizado en Supabase.
+- Sólo administradores pueden registrar nuevos sorteos.
+- Concurso y fecha únicos para impedir duplicar el mismo sorteo.
+- Los alumnos consultan el histórico en modo de sólo lectura.
+- Generar combinaciones ya no agrega registros al historial.

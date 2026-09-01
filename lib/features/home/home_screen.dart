@@ -43,6 +43,8 @@ class _HomeScreenState extends State<HomeScreen> {
     6,
     (_) => TextEditingController(),
   );
+  final TextEditingController _contestController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
   final ScrollController _sidebarScrollController = ScrollController();
 
   List<List<int>> _history = <List<int>>[];
@@ -51,6 +53,8 @@ class _HomeScreenState extends State<HomeScreen> {
   List<ModelConfig> _modelHistory = <ModelConfig>[];
   bool _loading = true;
   bool _running = false;
+  bool _isAdmin = false;
+  bool _savingOfficialDraw = false;
   double _progress = 0;
   int _selectedIndex = 0;
   int _topN = 10;
@@ -71,6 +75,8 @@ class _HomeScreenState extends State<HomeScreen> {
     for (final TextEditingController controller in _controllers) {
       controller.dispose();
     }
+    _contestController.dispose();
+    _dateController.dispose();
     _sidebarScrollController.dispose();
     super.dispose();
   }
@@ -81,15 +87,20 @@ class _HomeScreenState extends State<HomeScreen> {
         _repository.load(),
         _configRepository.load(),
         _configRepository.loadHistory(),
+        _repository.isCurrentUserAdmin(),
       ]);
       final List<List<int>> history = loaded[0] as List<List<int>>;
       final ModelConfig config = loaded[1] as ModelConfig;
       final List<ModelConfig> modelHistory =
           loaded[2] as List<ModelConfig>;
+      final bool isAdmin = loaded[3] as bool;
       final List<int> last = history.last;
 
       for (int index = 0; index < 6; index++) {
         _controllers[index].text = last[index].toString();
+      }
+      if (isAdmin && _dateController.text.isEmpty) {
+        _dateController.text = DateTime.now().toIso8601String().split('T').first;
       }
 
       if (!mounted) {
@@ -100,6 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _history = history;
         _config = config;
         _modelHistory = modelHistory;
+        _isAdmin = isAdmin;
         _loading = false;
         _status = 'Motor Fortuna listo · ${history.length} sorteos cargados.';
       });
@@ -184,19 +196,11 @@ class _HomeScreenState extends State<HomeScreen> {
           return;
         }
 
-        final bool saved = await _persistLatestDraw(latest);
-
-        if (!mounted) {
-          return;
-        }
-
         setState(() {
           _ranking = ranking;
           _running = false;
           _progress = 1;
-          _status = saved
-              ? 'Análisis terminado con ${config.modelName}. Sorteo guardado.'
-              : 'Análisis terminado con ${config.modelName}.';
+          _status = 'Análisis terminado con ${config.modelName}.';
         });
         return;
       }
@@ -239,8 +243,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 )
                 .toList(growable: false);
 
-            final bool saved = await _persistLatestDraw(latest);
-
             if (!mounted) {
               return;
             }
@@ -249,9 +251,7 @@ class _HomeScreenState extends State<HomeScreen> {
               _ranking = ranking;
               _running = false;
               _progress = 1;
-              _status = saved
-                  ? 'Análisis terminado con ${config.modelName}. Sorteo guardado.'
-                  : 'Análisis terminado con ${config.modelName}.';
+              _status = 'Análisis terminado con ${config.modelName}.';
             });
           }
           port.close();
@@ -296,21 +296,42 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
 
-  Future<bool> _persistLatestDraw(List<int> latest) async {
-    final bool added = await _repository.addDraw(latest);
-    if (!added) {
-      return false;
+  Future<void> _saveOfficialDraw() async {
+    if (!_isAdmin || _savingOfficialDraw) return;
+    try {
+      final int? contest = int.tryParse(_contestController.text.trim());
+      final DateTime? date = DateTime.tryParse(_dateController.text.trim());
+      if (contest == null || date == null) {
+        throw const FormatException(
+          'Captura el número de concurso y la fecha en formato AAAA-MM-DD.',
+        );
+      }
+      final List<int> draw = _readLatest();
+      setState(() => _savingOfficialDraw = true);
+      await _repository.addOfficialDraw(
+        contestNumber: contest,
+        drawDate: date,
+        values: draw,
+      );
+      final List<List<int>> updatedHistory = await _repository.load();
+      if (!mounted) return;
+      setState(() {
+        _history = updatedHistory;
+        _savingOfficialDraw = false;
+        _status = 'Concurso $contest guardado en el historial oficial.';
+      });
+      _showMessage('Sorteo oficial registrado para todos los usuarios.');
+    } on FormatException catch (error) {
+      if (mounted) {
+        setState(() => _savingOfficialDraw = false);
+        _showMessage(error.message);
+      }
+    } catch (error) {
+      if (mounted) {
+        setState(() => _savingOfficialDraw = false);
+        _showMessage('No se pudo registrar el sorteo: $error');
+      }
     }
-
-    final List<List<int>> updatedHistory = await _repository.load();
-    if (!mounted) {
-      return true;
-    }
-
-    setState(() {
-      _history = updatedHistory;
-    });
-    return true;
   }
 
   void _showMessage(String message) {
@@ -1178,6 +1199,36 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 16),
+            if (_isAdmin) ...<Widget>[
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: <Widget>[
+                  SizedBox(
+                    width: 190,
+                    child: TextField(
+                      controller: _contestController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Número de concurso',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 190,
+                    child: TextField(
+                      controller: _dateController,
+                      decoration: const InputDecoration(
+                        labelText: 'Fecha AAAA-MM-DD',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+            ],
             Wrap(
               spacing: 10,
               runSpacing: 10,
@@ -1187,6 +1238,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: 74,
                   child: TextField(
                     controller: _controllers[index],
+                    readOnly: !_isAdmin,
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 20),
@@ -1198,6 +1250,27 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
+            if (_isAdmin) ...<Widget>[
+              const SizedBox(height: 14),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: FilledButton.icon(
+                  onPressed: _savingOfficialDraw ? null : _saveOfficialDraw,
+                  icon: const Icon(Icons.cloud_upload_outlined),
+                  label: Text(
+                    _savingOfficialDraw
+                        ? 'Guardando…'
+                        : 'Registrar sorteo oficial',
+                  ),
+                ),
+              ),
+            ] else ...<Widget>[
+              const SizedBox(height: 12),
+              const Text(
+                'Historial oficial administrado por Academia PIT.',
+                style: TextStyle(color: Colors.white60, fontSize: 12),
+              ),
+            ],
             const SizedBox(height: 16),
             LinearProgressIndicator(
               value: _progress,
