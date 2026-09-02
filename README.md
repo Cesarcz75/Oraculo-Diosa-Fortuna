@@ -4,7 +4,7 @@ Plataforma Flutter de investigación estadística para Melate Retro, desarrollad
 
 ## Versión estable
 
-**1.2.3+123**
+**1.2.4+124**
 
 ## Acceso por suscripción
 
@@ -21,6 +21,14 @@ números; los suscriptores reciben el mismo historial en modo de sólo lectura.
 El número de concurso y la fecha son únicos, mientras que una combinación puede
 repetirse legítimamente en concursos diferentes. Requiere ejecutar
 `supabase/retro_draws_v1_2.sql` una sola vez en el proyecto de Supabase.
+
+## Música ambiental
+
+Desde la versión 1.2.4, el Oráculo incluye una pista ambiental original en loop,
+con volumen discreto y control Música / Música apagada en la barra lateral.
+La preferencia se conserva entre sesiones. En navegadores Web, la reproducción
+comienza después de la primera interacción del usuario para respetar las reglas
+de autoplay.
 
 ## Calidad
 

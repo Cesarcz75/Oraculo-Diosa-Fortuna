@@ -1,6 +1,8 @@
 import 'dart:isolate';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/models/model_config.dart';
 import '../../core/models/ranked_combination.dart';
 import '../../core/models/pit_audit.dart';
@@ -58,6 +60,16 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _contestController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
   final ScrollController _sidebarScrollController = ScrollController();
+  final AudioPlayer _backgroundMusicPlayer = AudioPlayer();
+
+  static const String _musicPreferenceKey = 'diosa_fortuna_music_enabled';
+  static const String _backgroundMusicAsset =
+      'audio/diosa_fortuna_ambient.mp3';
+  static const double _backgroundMusicVolume = 0.14;
+
+  bool _musicEnabled = true;
+  bool _musicStarted = false;
+  bool _musicStarting = false;
 
   List<List<int>> _history = <List<int>>[];
   List<OfficialRetroDraw> _officialDraws = <OfficialRetroDraw>[];
@@ -78,6 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    _prepareBackgroundMusic();
     _loadHistory();
   }
 
@@ -90,8 +103,79 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     _contestController.dispose();
     _dateController.dispose();
+    _backgroundMusicPlayer.dispose();
     _sidebarScrollController.dispose();
     super.dispose();
+  }
+
+  Future<void> _prepareBackgroundMusic() async {
+    try {
+      final SharedPreferences preferences =
+          await SharedPreferences.getInstance();
+      final bool enabled =
+          preferences.getBool(_musicPreferenceKey) ?? true;
+
+      await _backgroundMusicPlayer.setReleaseMode(ReleaseMode.loop);
+      await _backgroundMusicPlayer.setVolume(_backgroundMusicVolume);
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _musicEnabled = enabled;
+      });
+    } catch (error) {
+      debugPrint('No se pudo preparar la música ambiental: $error');
+    }
+  }
+
+  Future<void> _ensureBackgroundMusic() async {
+    if (!_musicEnabled || _musicStarted || _musicStarting) {
+      return;
+    }
+
+    _musicStarting = true;
+    try {
+      await _backgroundMusicPlayer.play(
+        AssetSource(_backgroundMusicAsset),
+        volume: _backgroundMusicVolume,
+      );
+      _musicStarted = true;
+    } catch (error) {
+      // En Web, el navegador requiere interacción del usuario para habilitar
+      // audio. El Listener del Scaffold vuelve a intentar en el primer toque.
+      debugPrint('Música ambiental pendiente de interacción: $error');
+    } finally {
+      _musicStarting = false;
+    }
+  }
+
+  Future<void> _toggleBackgroundMusic() async {
+    final bool enable = !_musicEnabled;
+
+    setState(() {
+      _musicEnabled = enable;
+    });
+
+    try {
+      final SharedPreferences preferences =
+          await SharedPreferences.getInstance();
+      await preferences.setBool(_musicPreferenceKey, enable);
+
+      if (!enable) {
+        await _backgroundMusicPlayer.pause();
+        return;
+      }
+
+      if (_musicStarted) {
+        await _backgroundMusicPlayer.resume();
+      } else {
+        await _ensureBackgroundMusic();
+      }
+    } catch (error) {
+      debugPrint('No se pudo cambiar el estado de la música: $error');
+    }
   }
 
   Future<void> _loadHistory() async {
@@ -619,18 +703,24 @@ class _HomeScreenState extends State<HomeScreen> {
     ];
 
     return Scaffold(
-      body: SafeArea(
-        child: Row(
-          children: <Widget>[
-            _buildSidebar(),
-            const VerticalDivider(width: 1),
-            Expanded(
-              child: IndexedStack(
-                index: _selectedIndex,
-                children: pages,
+      body: Listener(
+        behavior: HitTestBehavior.translucent,
+        onPointerDown: (_) {
+          _ensureBackgroundMusic();
+        },
+        child: SafeArea(
+          child: Row(
+            children: <Widget>[
+              _buildSidebar(),
+              const VerticalDivider(width: 1),
+              Expanded(
+                child: IndexedStack(
+                  index: _selectedIndex,
+                  children: pages,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -758,6 +848,10 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           Padding(
+            padding: const EdgeInsets.fromLTRB(10, 4, 10, 4),
+            child: _buildMusicControl(extended),
+          ),
+          Padding(
             padding: const EdgeInsets.all(10),
             child: Image.asset(
               'assets/images/pit_powered_by.png',
@@ -766,6 +860,39 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildMusicControl(bool extended) {
+    final IconData icon =
+        _musicEnabled ? Icons.volume_up_rounded : Icons.volume_off_rounded;
+    final String label = _musicEnabled ? 'Música' : 'Música apagada';
+    final String tooltip = _musicEnabled
+        ? 'Silenciar música ambiental'
+        : 'Activar música ambiental';
+
+    if (!extended) {
+      return Tooltip(
+        message: tooltip,
+        child: IconButton(
+          onPressed: _toggleBackgroundMusic,
+          icon: Icon(icon, color: gold),
+        ),
+      );
+    }
+
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: _toggleBackgroundMusic,
+        icon: Icon(icon, size: 18),
+        label: Text(label),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: gold,
+          side: const BorderSide(color: Color(0x66E8B85A)),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        ),
       ),
     );
   }

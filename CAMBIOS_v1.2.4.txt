@@ -1,0 +1,8 @@
+ORÁCULO DIOSA FORTUNA PROFESSIONAL v1.2.4
+
+- Se agrega música ambiental original, suave y mística, en reproducción continua.
+- Volumen inicial bajo (14%) para no interferir con el uso del software.
+- En Web, la música comienza después de la primera interacción del usuario por las reglas de autoplay del navegador.
+- Se agrega control Música / Música apagada en la barra lateral.
+- La preferencia de música se recuerda entre sesiones mediante SharedPreferences.
+- Se conserva sin cambios la funcionalidad de Histórico, edición de sorteos, cierre seguro y control de acceso de v1.2.3.
